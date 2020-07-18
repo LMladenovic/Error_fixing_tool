@@ -1,11 +1,13 @@
 import fileinput
 from errorClass import *
 from uninitialisedFix import *
+from invalidFreeFix import *
 import re
 
 errorType = [
 	'Conditional jump or move depends on uninitialised value(s)',
-	'Use of uninitialised value of size '
+	'Use of uninitialised value of size ',
+	'Invalid free() / delete / delete[] / realloc()'
 ]
 
 errorReason = [
@@ -36,19 +38,24 @@ def eliminateError(errorInfo, filename, history):
 	
 	fix(err, history)
 
-	# change in file what shoud be changed
-	f = open(filename,'r')
-	filedata = f.read()
-	f.close()
+	if err.getBug() and err.getBugFix():
+		# change in file what shoud be changed
+		f = open(filename,'r')
+		filedata = f.read()
+		f.close()
 
-	# change bug in code found by koronka
-	newdata = filedata.replace(err.getBug() , err.getBugFix())
+		# change bug in code found by koronka
+		newdata = filedata.replace(err.getBug() , err.getBugFix())
+		
+		f = open(filename,'w')
+		f.write(newdata)
+		f.close()
+
+	if err.getBug() and err.getBugFix():
+		report.write('Changed \n' + err.getBug() + ' with \n' + err.getBugFix() + '\n\n')
+	else:
+		report.write('Removed line\n' + err.getBug() + '\n\n')
 	
-	f = open(filename,'w')
-	f.write(newdata)
-	f.close()
-
-	report.write('Changed \n' + err.getBug() + ' with \n' + err.getBugFix() + '\n\n')
 	report.close()
 
 
@@ -82,6 +89,10 @@ def fix(err, history):
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \
 	 'Uninitialised value was created by a heap allocation' in err.getErrorReason():
 		uninitialisedDinamicllyAllocatedVariable(err, history)
+
+	# invalid free
+	if err.getErrorType() == 'Invalid free() / delete / delete[] / realloc()':
+		invalidFree(err, history)
 
 
 

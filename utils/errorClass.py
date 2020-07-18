@@ -15,6 +15,9 @@ class ErrorInfo:
 
 	def getBug(self):
 		return self.bug
+	
+	def getValgrindOutput(self):
+		return self.valgrindOutput
 
 	def getBugFix(self):
 		return self.bugFix
