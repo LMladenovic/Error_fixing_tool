@@ -45,10 +45,9 @@ def doJob(filename):
 			call(["valgrind", "--tool=memcheck", "--track-origins=yes", "--log-file=ValgrindLOG.txt" , "./" + executeFile])
 			errorInfo = parseOutput()
 		else:
-			print("\n################ RUN FINISHED ###################\n\n")
 			break
 
-
+	print("\n################ RUN FINISHED ###################\n\n")
 	print("Koronka successfully fixed all what were in her power! :)")
 
 def main():

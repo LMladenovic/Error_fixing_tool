@@ -4,7 +4,6 @@ def invalidFree(err, history):
 	f = open( err.getFilename(), "r")
 	data = f.readlines()	
 	f.close()
-	print(err.getValgrindOutput())
 	problemLine = data[err.getProblemLines()[len(err.getProblemLines())-1] - 1]
 	err.setBug(problemLine)
 	

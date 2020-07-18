@@ -4,7 +4,7 @@ def uninitialisedStaticVariable(err, history):
 	
 	f = open( err.getFilename(), "r")
 	data = f.readlines()
-
+	
 	lineCausedProblems = data[err.getProblemLines()[1] - 1]
 	addition=''
 
@@ -35,52 +35,51 @@ def uninitialisedStaticVariable(err, history):
 
 	f.close()
 
-
 def uninitialisedDinamicllyAllocatedVariable(err, history):
 
 	f = open( err.getFilename(), "r")
 	data = f.readlines()
-
-	problemLine = data[err.getProblemLines()[0] - 1]
-	lineCausedProblems = data[err.getProblemLines()[1] - 1]
-	
-	start = problemLine.find('*')
-	end = problemLine.find('=')
-	varType = problemLine[0:start].strip()
-	addition=''	
-
-	# printf, write, fprintf, sprintf, etc. may cause this error
-	# if lineCausedProblems.find('printf')>=0:
-
-	check = lineCausedProblems.split("\"")[-1:][0].strip().split(',')
-	for item in check:
-		if item.find(')')>=0:			
-			item = item[0: item.find(')')].strip()
-		else: 
-			item = item.strip()
-
-		# it is not >= because variable type is in front of variable
-		if item.find(problemLine[start:end].strip())==0 and  problemLine[start:end].strip().find(item)==0 :
-			if initialise(varType)!= 'Invalid':			
-				addition = item + " = " + initialise(varType) + ';'			
-		elif item.find('[')>=0:
-			if problemLine[start:end].strip().find(item[0:item.find('[')]) >=0:
-				if initialise(varType)!= 'Invalid':
-					addition = item + " = " + initialise(varType) + ';'
-			
-		if addition not in history:
-			history.append(addition)
-			break			
-				
-
-	# addition = problemLine[start:end] + " = " + initialise(varType) + ';'
-
-	# set what should be changed
-	if addition:
-		err.setBug(lineCausedProblems)
-		err.setBugFix(lineCausedProblems.replace(lineCausedProblems.strip() , addition) + lineCausedProblems )
-
 	f.close()
+		
+	lineCausedProblems = data[err.getProblemLines()[0] - 1]
+	addition=''
+	
+	m = re.search('(malloc|calloc|realloc)(.+);', lineCausedProblems)
+	if m:
+		expressionData = m.group(2).replace('(', '', 1)[::-1].replace(')', '', 1)[::-1].strip()
+		expressionData = re.sub('sizeof[ ]*\([ ]*(int|double|char|float)[ ]*\)', '1' , expressionData)
+		start = lineCausedProblems.find('*')
+		end = lineCausedProblems.find('=')
+		varType = lineCausedProblems[0:start].strip()
+		inl = lineCausedProblems[0:start - len(varType) - 1]
+		variable = lineCausedProblems[lineCausedProblems.find('*') + 1 : lineCausedProblems.find('=')]
+		
+		if initialise(varType)!= 'Invalid':
+			count = 0
+			for line in history:
+				if line.find('__index__') > 0 :	
+					count += 1
+
+			if count:
+				addition = ''
+			else:
+				addition = 'int '+ '__index__' +';\n'
+
+			if addition:
+				addition += inl
+			
+			addition += 'for( '+ '__index__' +' = 0; ' + '__index__' +' < ' + expressionData + '; ' \
+				+ '__index__ ' + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + '__index__' + '] = ' \
+				+ initialise(varType) + ';'
+
+	if addition and addition not in history:
+		history.append(addition)		
+		# addition = problemLine[start:end] + " = " + initialise(varType) + ';'
+		# set what should be changed
+		err.setBug(lineCausedProblems)
+		err.setBugFix(lineCausedProblems + lineCausedProblems.replace(lineCausedProblems.strip() , addition) )
+
+
 
 
 def initialise(varType):
