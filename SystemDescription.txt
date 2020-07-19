@@ -1,0 +1,72 @@
+System Description of auto detect and fix bugs found using Valgrind in programms written in C tool
+ 
+Koronka je alat koji automatski otkriva greske u kodu napisanom u C-u koristeci alat Valgrind, 
+a zatim ih ispravlja ukoliko je to u njegovoj moci. Razvijan pod Linux okruzenjem. Alat je nazvan 
+Koronka, zbog trenutne situacije u kojoj se svi nalazimo. Alat je implementiran u Python-u. 
+Osnovna svrha alata je demonstracija rada alata Valgrind, kao i tumacenje izvestaja o greskama koje 
+Valgrind daje i njihovo uspesno otklanjanje.
+
+Valgrind je platforma za pravljenje alata za dinamicku analizu. Dolazi sa setom alata, od kojih svaki 
+obavlja neku vrstu debagovanja, profiliranja ili slicne zadatke koji vam pomazu da poboljsate svoje 
+programe. 
+
+Valgrind se moze koristiti i kao alat za pravljenje novih alata, bez narusavanja postojecce strukture. 
+Valgrind distribucija trenutno broji sledeće alate:
+	- detektor memorijskih gresaka (Memcheck)
+	- detektor gresaka niti (Hellgrind i DRD)
+	- optimizator kes memorije i skokova(Cachegrind)
+	- generator grafa skrivene memorije i predikcije skoka (Callgrind)
+	- optimizator koriscenja dinamičke memorije (Massif)
+
+Rad se zasniva na Valgrindovom alatu Memcheck. Imlementirane su funkcionalnosti ispravljanja nekih od 
+bagova na koje Memcheck ukazuje. Sa daljim razvijanjem alata bice dodavane nove funkcionalnosti. 
+
+						ALGORITAM IZVRSAVANJA
+
+Na pocetku program kopira unete fajlove koji se propustaju kroz alat u novonapravljeni direktorijum u formatu
+datumPokretanja-vremePokretanja i nad njima vrsi dalje promene. Prvo se kompajlira program, zatim se pokrece
+alat Valgrind, i parsira se njegov izlaz. Ukoliko postoji greska koju alat moze da ispravi, on je ispravlja,
+dodaje u ExecutionReport na osnovu cega i sta je uradjeno, i menja sta se treba promeniti u kodu programa. 
+Nakon otklonjene greske u tekucoj iteraciji, pokrece se nova iteracija kompilacije, a zatim pokretanja 
+Valgrinada i daljeg pokusavanja otklanjanja gresaka. Ukoliko program nema bagova, ili alat ne moze da ispravi
+nijedan bag na koji je Valgrind ukazao, program se prekida.
+
+	 _______________________________________________________________________
+	|									|
+	|								KOMPAJLIRAJ PROGRAM
+	|									|
+	|	 							POKRENI VALGRIND
+	|									|
+	|							PARSIRAJ IZLAZ (parseOutput.py)
+	|						(izlaz: lista bagova na koje Valgrind ukazuje)
+	|									|
+	|							{uslov: lista bagova nije prazna}
+	|					 _______________________________|_______________________
+	|					|true							|false
+	|		NADJI POZNATI BAG IZ LISTE (errorHandler.py)					|
+	|					|							|
+	|		{uslov: postoji bag koji moze biti ispravljen}					|
+	|			________________|_______________					|
+	|			|true				|false					|
+	|		    ISPRAVI BAG				|					|
+	|			|				|					|
+	|		[unitialisedFix.py,			|					|
+	|		invalidReadOrWriteFix.py,		|					|
+	|		invalidFreeFix.py...]			|					|
+	|			|				|					|
+	|		(izlaz iz grane: 			|					|
+	|		ispravljeni fajlovi,			|					|
+	|		executionReport.txt)			|					|
+	|______________________|				|					|
+								|					|
+								EXIT					EXIT
+													
+NAPOMENA : Sa daljim razvijanjem alata, algoritam se moze izmeniti.
+
+
+					POKRETANJE ALATA
+
+Nakon sto se pozicionirate u direktorijum u kom se nalazi koronka.py, alat se pokrece komandom:
+				python koronka.py [c file|path to c file] [other arguments] 
+
+Primeri nad kojim je alat testiran nalaze se u direktorijumu Examples			
