@@ -25,6 +25,6 @@ Alat ce u okviru direktorijuma u kom se nalazi kreirati folder po modelu datumPo
 
 ### Studenti koji rade na projektu
 
-- Lazar Mladenovic
-- Tatijana Radovanovic
-- Jovan Maric
+- [Lazar Mladenovic](https://github.com/LMladenovic)
+- [Tatjana Radovanovic](https://github.com/Tatjana95)
+- [Jovan Maric](https://github.com/maric993)

@@ -46,4 +46,12 @@ class ErrorInfo:
 	def setBugFix(self, bugFix):
 		self.bugFix = bugFix
 
+	def isKnownReason(self, newReason):
+		for reason in self.errorReason:
+			if reason.find(newReason) >= 0:
+				return True
+				break
+
+		return False
+
 

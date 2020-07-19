@@ -25,7 +25,6 @@ def doJob(filename):
 	# calling Valgrind tool MEMCHECK
 	call(["valgrind", "--tool=memcheck", "--track-origins=yes", "--log-file=ValgrindLOG.txt" , "./" + executeFile])
 	errorInfo = parseOutput()
-	
 	# contain changes made to file, in order not to make same changes if they have allready made
 	history = ['']
 
@@ -33,7 +32,7 @@ def doJob(filename):
 		n = len(history)
 		# eliminate errors one by one
 		for error in errorInfo:
-			if error[0:error.find('\n')] in errorType:
+			if isKnownError(error[0:error.find('\n')]):
 				eliminateError(error, filename, history)
 				print("\n################ RUN FINISHED ###################\n\n")
 				break	

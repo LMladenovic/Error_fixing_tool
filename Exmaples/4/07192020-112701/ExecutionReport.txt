@@ -1,0 +1,16 @@
+#####  Based on Valgrind output:  #####
+
+Invalid write of size 4
+at 0x10917A: main (4.c:8)
+Address 0x4a59054 is 4 bytes after a block of size 16 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10916D: main (4.c:7)
+
+#####  Koronka made following changes in 4.c  #####
+
+Changed 
+	int *t = malloc ( sizeof( int )*4) ;
+ with 
+	int *t = malloc ( sizeof( int )*4 + sizeof(int)*2 );
+
+

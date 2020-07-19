@@ -1,0 +1,37 @@
+#####  Based on Valgrind output:  #####
+
+Invalid read of size 4
+at 0x10917A: main (3.c:8)
+Address 0x4a59054 is 4 bytes after a block of size 16 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10916D: main (3.c:7)
+
+#####  Koronka made following changes in 3.c  #####
+
+Changed 
+	int *t = malloc ( sizeof( int )*4) ;
+ with 
+	int *t = malloc ( sizeof( int )*4 + sizeof(int)*2 );
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x109199: main (3.c:9)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10916D: main (3.c:7)
+
+#####  Koronka made following changes in 3.c  #####
+
+Changed 
+	int *t = malloc ( sizeof( int )*4 + sizeof(int)*2 );
+ with 
+	int *t = malloc ( sizeof( int )*4 + sizeof(int)*2 );
+	int __index__;
+	for( __index__ = 0; __index__ < 1*4 + 1*2; __index__  ++)
+		t[__index__] = 0;
+
+
