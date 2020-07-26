@@ -6,11 +6,11 @@ def uninitialisedStaticVariable(err, history):
 	data = f.readlines()
 	
 	lineCausedProblems = data[err.getProblemLines()[1] - 1]
+	err.setChangedLine(err.getProblemLines()[1])
 	addition=''
 
 	check = lineCausedProblems.split("\"")[-1:][0].strip().split(',')
 	for item in check:
-		# add expression check (i.e. a + b)
 		if item.find(')')>=0:			
 			item = item[0: item.find(')')].strip()
 		else: 
@@ -42,6 +42,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, history):
 	f.close()
 		
 	lineCausedProblems = data[err.getProblemLines()[0] - 1]
+	err.setChangedLine(err.getProblemLines()[0])
 	addition=''
 	
 	m = re.search('(malloc|calloc|realloc)(.+);', lineCausedProblems)
@@ -55,26 +56,34 @@ def uninitialisedDinamicllyAllocatedVariable(err, history):
 		variable = lineCausedProblems[lineCausedProblems.find('*') + 1 : lineCausedProblems.find('=')]
 		
 		if initialise(varType)!= 'Invalid':
-			count = 0
-			for line in history:
-				if line.find('__index__') > 0 :	
-					count += 1
-
-			if count:
-				addition = ''
+			if not re.findall('[a-zA-Z]+', expressionData) and eval(expressionData) == 1:
+				addition = lineCausedProblems[start:end] + " = " + initialise(varType) + ';'
 			else:
-				addition = 'int '+ '__index__' +';\n'
+				count = 0
+				for line in history:
+					if line.find('__index__') > 0 :	
+						count += 1
 
-			if addition:
-				addition += inl
-			
-			addition += 'for( '+ '__index__' +' = 0; ' + '__index__' +' < ' + expressionData + '; ' \
-				+ '__index__ ' + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + '__index__' + '] = ' \
-				+ initialise(varType) + ';'
+				if count:
+					addition = ''
+				else:
+					addition = 'int '+ '__index__' +';\n'
+				
+				if re.findall('[a-zA-Z]+', inl):
+					inl = ''
+
+				if addition:
+					addition += inl
+
+				if not re.findall('[a-zA-Z]+', expressionData):
+					expressionData = str(eval(expressionData))
+
+				addition += 'for( '+ '__index__' +' = 0; ' + '__index__' +' < ' + expressionData + '; ' \
+					+ '__index__ ' + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + '__index__' + '] = ' \
+					+ initialise(varType) + ';'
 
 	if addition and addition not in history:
 		history.append(addition)		
-		# addition = problemLine[start:end] + " = " + initialise(varType) + ';'
 		# set what should be changed
 		err.setBug(lineCausedProblems)
 		err.setBugFix(lineCausedProblems + lineCausedProblems.replace(lineCausedProblems.strip() , addition) )

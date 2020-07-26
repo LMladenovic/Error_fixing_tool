@@ -4,9 +4,7 @@ from errorHandler import *
 
 # function which will handle Valgrind output file and extract all informations about known error types
 def parseOutput():
-	# os.getcwd() vraca tekuci radni direktorijum pa ce putanja biti os.getcwd() + "/" + "ValgrindLOG.txt"
 	f = open(os.getcwd() + "/" + "ValgrindLOG.txt", "r")	
-	#f = open(os.getcwd()+"/utils/" + "ValgrindLOG.txt", "r")
 
 	# indicator for the state of known error on not
 	indicator = 0
@@ -33,7 +31,6 @@ def parseOutput():
 		
 	f.close()
 
-	#print(outputInfo[0].split('\n'))
 	return outputInfo
 
 

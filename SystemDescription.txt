@@ -67,6 +67,8 @@ NAPOMENA : Sa daljim razvijanjem alata, algoritam se moze izmeniti.
 					POKRETANJE ALATA
 
 Nakon sto se pozicionirate u direktorijum u kom se nalazi koronka.py, alat se pokrece komandom:
-				python koronka.py [c file|path to c file] [other arguments] 
+			python koronka.py [c file|path to c file] [other arguments] 
 
-Primeri nad kojim je alat testiran nalaze se u direktorijumu Examples			
+[other arguments] - argumenti koji su potrebni c programu kao argumenti komandne linije ( u trenutnoj verziji projekta)
+
+Primeri nad kojim je alat testiran nalaze se u direktorijumu Example			

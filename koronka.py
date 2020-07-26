@@ -18,12 +18,12 @@ def compileProgram(filename):
 	call(["gcc",  "-g", "-O0", "-Wall", filename , "-o", executeFile])
 	return executeFile
 
-def doJob(filename):
+def doJob(filename, clArguments):
 
 	print("################ RUN STARTED ###################\n")	
 	executeFile = compileProgram(filename)
 	# calling Valgrind tool MEMCHECK
-	call(["valgrind", "--tool=memcheck", "--track-origins=yes", "--log-file=ValgrindLOG.txt" , "./" + executeFile])
+	call(["valgrind", "--tool=memcheck", "--track-origins=yes", "--log-file=ValgrindLOG.txt" , "./" + executeFile, clArguments])
 	errorInfo = parseOutput()
 	# contain changes made to file, in order not to make same changes if they have allready made
 	history = ['']
@@ -41,13 +41,14 @@ def doJob(filename):
 		if len(history) > n:	
 			print("################ RUN STARTED ###################\n")				
 			executeFile = compileProgram(filename)
-			call(["valgrind", "--tool=memcheck", "--track-origins=yes", "--log-file=ValgrindLOG.txt" , "./" + executeFile])
+			call(["valgrind", "--tool=memcheck", "--track-origins=yes", "--log-file=ValgrindLOG.txt" ,\
+			 "./" + executeFile, clArguments])
 			errorInfo = parseOutput()
 		else:
 			break
 
 	print("\n################ RUN FINISHED ###################\n\n")
-	print("Koronka successfully fixed all what were in her power! :)")
+	print("Koronka successfully fixed all that were in her power! :)")
 
 def main():
 	now = datetime.now()
@@ -60,10 +61,11 @@ def main():
 		if len(sys.argv)< 2:
 			print ("Usage: python koronka.py PROGRAM [arguments]")
 		elif not os.path.exists(sys.argv[1]) or not os.path.isfile(sys.argv[1]) :
-			print ("Program proceeded as argument [" + sys.argv[1] + "] doesn't exsist or is not a file")
-		else:
-			os.mkdir(directory)
+			print ("The program proceeded as argument [" + sys.argv[1] + "] doesn't exist or is not a file.")
 			
+		else:
+			os.mkdir(directory)			
+
 			######  COPYING FILES TO WORKING DIRECTORY ######
 			
 			# in case we are giving our program as complite path
@@ -73,7 +75,11 @@ def main():
 			os.chdir(directory)
 			print ("Successfully created the directory "+ directory +" , and moved file " + filename)
 			try:
-				doJob(filename) 
+				clArguments = ''
+				for i in range(2,len(sys.argv)):
+					clArguments += sys.argv[i] + ' '
+				
+				doJob(filename, clArguments) 
 			
 			except OSError:
 				print ("Failed to run koronka :(")

@@ -5,6 +5,7 @@ class ErrorInfo:
         	self.errorType = errorType
 		self.valgrindOutput = valgrindOutput
 		self.filename = filename
+		self.changedLine = -1
 		self.problemLines = []
 		self.errorReason = []
 		self.bug = ''
@@ -45,6 +46,12 @@ class ErrorInfo:
 
 	def setBugFix(self, bugFix):
 		self.bugFix = bugFix
+
+	def setChangedLine(self, lineNumber):
+		self.changedLine = lineNumber
+
+	def getChangedLine(self):
+		return self.changedLine
 
 	def isKnownReason(self, newReason):
 		for reason in self.errorReason:

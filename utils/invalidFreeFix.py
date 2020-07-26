@@ -5,6 +5,7 @@ def invalidFree(err, history):
 	data = f.readlines()	
 	f.close()
 	problemLine = data[err.getProblemLines()[len(err.getProblemLines())-1] - 1]
+	err.setChangedLine(err.getProblemLines()[len(err.getProblemLines())-1])
 	err.setBug(problemLine)
 	
 	get_indexes = lambda x, xs: [i for (y, i) in zip(xs, range(len(xs))) if y.find(x) != -1]

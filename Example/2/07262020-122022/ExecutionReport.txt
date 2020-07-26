@@ -1,0 +1,32 @@
+#####  Based on Valgrind output:  #####
+
+Invalid free() / delete / delete[] / realloc()
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10919F: main (2.c:11)
+Address 0x4a590a0 is 0 bytes inside a block of size 12 free'd
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109193: main (2.c:10)
+Block was alloc'd at
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109183: main (2.c:9)
+
+#####  Koronka made following changes in 2.c  #####
+
+Removed 11. line
+  free(p);
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid free() / delete / delete[] / realloc()
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1091A7: main (2.c:14)
+Address 0x1ffefffcef is on thread 1's stack
+in frame #1, created by main (2.c:5)
+
+#####  Koronka made following changes in 2.c  #####
+
+Removed 14. line
+  free(p); 			
+
+

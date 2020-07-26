@@ -41,7 +41,7 @@ def eliminateError(errorInfo, filename, history):
 	report = open("ExecutionReport.txt",'a')
 	report.write('#####  Based on Valgrind output:  #####\n\n')
 	report.write(errorInfo)	
-	#print(errorInfo.split('\n'))	
+	
 	report.write('\n#####  Koronka made following changes in ' + filename + '  #####\n\n')
 
 	# define error and decide what to do to fix it 	
@@ -64,9 +64,9 @@ def eliminateError(errorInfo, filename, history):
 		f.close()
 
 	if err.getBug() and err.getBugFix():
-		report.write('Changed \n' + err.getBug() + ' with \n' + err.getBugFix() + '\n\n')
+		report.write('Changed ' + str(err.getChangedLine()) + '. line \n' + err.getBug() + ' with \n' + err.getBugFix() + '\n\n')
 	elif err.getBug():
-		report.write('Removed line\n' + err.getBug() + '\n\n')
+		report.write('Removed ' + str(err.getChangedLine()) + '. line\n' + err.getBug() + '\n\n')
 	
 	report.close()
 
