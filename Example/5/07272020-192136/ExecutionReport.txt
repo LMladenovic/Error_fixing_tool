@@ -1,0 +1,91 @@
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x10927C: main (5.c:29)
+Uninitialised value was created by a stack allocation
+at 0x1091EA: main (5.c:18)
+
+#####  Koronka made following changes in 5.c  #####
+
+Changed 29. line 
+	int x;
+ with 
+	int x= 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid write of size 4
+at 0x1092DB: main (5.c:36)
+Address 0x4a59494 is 0 bytes after a block of size 20 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10929B: main (5.c:32)
+
+#####  Koronka made following changes in 5.c  #####
+
+Changed 32. line 
+	int *t = malloc(sizeof(int)*x);
+ with 
+	int *t = malloc(sizeof(int)*x + sizeof(int)*1 );
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid read of size 4
+at 0x1091B2: print_and_free (5.c:12)
+by 0x109327: main (5.c:41)
+Address 0x4a59498 is 0 bytes after a block of size 24 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10929F: main (5.c:32)
+
+#####  Koronka made following changes in 5.c  #####
+
+Changed 32. line 
+	int *t = malloc(sizeof(int)*x + sizeof(int)*1 );
+ with 
+	int *t = malloc(sizeof(int)*x + sizeof(int)*1  + sizeof(int)*1 );
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x1091C6: print_and_free (5.c:12)
+by 0x109327: main (5.c:41)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10929F: main (5.c:32)
+
+#####  Koronka made following changes in 5.c  #####
+
+Changed 32. line 
+	int *t = malloc(sizeof(int)*x + sizeof(int)*1  + sizeof(int)*1 );
+ with 
+	int *t = malloc(sizeof(int)*x + sizeof(int)*1  + sizeof(int)*1 );
+	int __index__;
+	for( __index__ = 0; __index__ < 1*x + 1*1  + 1*1; __index__  ++)
+		t[__index__] = 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid free() / delete / delete[] / realloc()
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109365: main (5.c:45)
+Address 0x4a59480 is 0 bytes inside a block of size 28 free'd
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1091E6: print_and_free (5.c:14)
+by 0x109359: main (5.c:44)
+Block was alloc'd at
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10929F: main (5.c:32)
+
+#####  Koronka made following changes in 5.c  #####
+
+Removed 45. line
+	free(t);
+
+
