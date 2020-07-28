@@ -53,14 +53,15 @@ def eliminateError(errorInfo, filename, history):
 	if err.getBug() and err.getBugFix():
 		# change in file what shoud be changed
 		f = open(filename,'r')
-		filedata = f.read()
+		data = f.readlines()
 		f.close()
 
 		# change bug in code found by koronka
-		newdata = filedata.replace(err.getBug() , err.getBugFix())
-		
+		data[err.getChangedLine() -1] = err.getBugFix()
+
 		f = open(filename,'w')
-		f.write(newdata)
+		for line in data:
+			f.write(line)
 		f.close()
 
 	if err.getBug() and err.getBugFix():

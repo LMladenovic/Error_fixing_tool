@@ -1,0 +1,189 @@
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x10929C: main (6.c:30)
+Uninitialised value was created by a stack allocation
+at 0x109273: main (6.c:27)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 28. line 
+	int x;
+ with 
+	int x= 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48C8240: __printf_fp_l (printf_fp.c:387)
+by 0x48E291F: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x1091C3: print_and_free (6.c:12)
+by 0x1092AD: main (6.c:32)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1091A2: print_and_free (6.c:10)
+by 0x1092AD: main (6.c:32)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 10. line 
+	float *t = malloc(sizeof(float));
+ with 
+	float *t = malloc(sizeof(float));
+	*t  = 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid write of size 8
+at 0x1092FD: main (6.c:41)
+Address 0x4a594f0 is 0 bytes after a block of size 32 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1092C3: main (6.c:35)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 35. line 
+	double *x1 = malloc( sizeof(double)*4);
+ with 
+	double *x1 = malloc( sizeof(double)*5 );
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid write of size 8
+at 0x10931F: main (6.c:42)
+Address 0x4a59560 is 0 bytes after a block of size 32 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1092D1: main (6.c:36)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 36. line 
+	double *x2 = malloc( sizeof(double)*4);
+ with 
+	double *x2 = malloc( sizeof(double)*5 );
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid read of size 8
+at 0x10921D: vector_addition (6.c:21)
+by 0x10933F: main (6.c:45)
+Address 0x4a594f8 is 0 bytes after a block of size 40 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1092C3: main (6.c:35)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 35. line 
+	double *x1 = malloc( sizeof(double)*5 );
+ with 
+	double *x1 = malloc( sizeof(double)*6 );
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid read of size 8
+at 0x109235: vector_addition (6.c:21)
+by 0x10933F: main (6.c:45)
+Address 0x4a59568 is 0 bytes after a block of size 40 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1092D1: main (6.c:36)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 36. line 
+	double *x2 = malloc( sizeof(double)*5 );
+ with 
+	double *x2 = malloc( sizeof(double)*6 );
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48C8240: __printf_fp_l (printf_fp.c:387)
+by 0x48E291F: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x10924D: vector_addition (6.c:21)
+by 0x10933F: main (6.c:45)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1092D1: main (6.c:36)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 36. line 
+	double *x2 = malloc( sizeof(double)*6 );
+ with 
+	double *x2 = malloc( sizeof(double)*6 );
+	int __index__;
+	for( __index__ = 0; __index__ < 6; __index__ ++)
+		x2[__index__] = 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48C8240: __printf_fp_l (printf_fp.c:387)
+by 0x48E291F: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x10924D: vector_addition (6.c:21)
+by 0x10936E: main (6.c:48)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1092C3: main (6.c:35)
+
+#####  Koronka made following changes in 6.c  #####
+
+Changed 35. line 
+	double *x1 = malloc( sizeof(double)*6 );
+ with 
+	double *x1 = malloc( sizeof(double)*6 );
+	int __index1__;
+	for( __index1__ = 0; __index1__ < 6; __index1__ ++)
+		x1[__index1__] = 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid free() / delete / delete[] / realloc()
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1093A9: main (6.c:52)
+Address 0x4a594d0 is 0 bytes inside a block of size 48 free'd
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10926F: vector_addition (6.c:24)
+by 0x10939D: main (6.c:51)
+Block was alloc'd at
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1092C3: main (6.c:35)
+
+#####  Koronka made following changes in 6.c  #####
+
+Removed 52. line
+	free(x1);
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid free() / delete / delete[] / realloc()
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1093A9: main (6.c:53)
+Address 0x4a59540 is 0 bytes inside a block of size 48 free'd
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10927B: vector_addition (6.c:25)
+by 0x10939D: main (6.c:51)
+Block was alloc'd at
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109300: main (6.c:39)
+
+#####  Koronka made following changes in 6.c  #####
+
+Removed 53. line
+	free(x2);
+
+

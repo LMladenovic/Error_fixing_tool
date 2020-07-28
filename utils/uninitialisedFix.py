@@ -6,7 +6,6 @@ def uninitialisedStaticVariable(err, history):
 	data = f.readlines()
 	
 	lineCausedProblems = data[err.getProblemLines()[1] - 1]
-	err.setChangedLine(err.getProblemLines()[1])
 	addition=''
 
 	check = lineCausedProblems.split("\"")[-1:][0].strip().split(',')
@@ -25,6 +24,7 @@ def uninitialisedStaticVariable(err, history):
 					varType = data[i][0:start].strip()
 					if initialise(varType)!= 'Invalid':
 						addition = data[i].replace(';' , '= ' + initialise(varType) + ';')
+						err.setChangedLine(i+1)
 						err.setBug(data[i])
 						err.setBugFix(addition)	
 						break
@@ -40,11 +40,18 @@ def uninitialisedDinamicllyAllocatedVariable(err, history):
 	f = open( err.getFilename(), "r")
 	data = f.readlines()
 	f.close()
-		
-	lineCausedProblems = data[err.getProblemLines()[0] - 1]
-	err.setChangedLine(err.getProblemLines()[0])
+	lineCausedProblems = ''
 	addition=''
+
+	for elem in err.getProblemLines():
+		m = re.search('(malloc|calloc|realloc)(.+);', data[elem-1])
+		if m:
+			lineCausedProblems = data[elem - 1]
+			err.setChangedLine(elem)
+			break
 	
+
+
 	m = re.search('(malloc|calloc|realloc)(.+);', lineCausedProblems)
 	if m:
 		expressionData = m.group(2).replace('(', '', 1)[::-1].replace(')', '', 1)[::-1].strip()
@@ -65,9 +72,11 @@ def uninitialisedDinamicllyAllocatedVariable(err, history):
 						count += 1
 
 				if count:
-					addition = ''
+					addition = 'int __index' + str(count) + '__;\n'
+					index = '__index' + str(count) + '__'
 				else:
 					addition = 'int '+ '__index__' +';\n'
+					index = '__index__'
 				
 				if re.findall('[a-zA-Z]+', inl):
 					inl = ''
@@ -78,10 +87,11 @@ def uninitialisedDinamicllyAllocatedVariable(err, history):
 				if not re.findall('[a-zA-Z]+', expressionData):
 					expressionData = str(eval(expressionData))
 
-				addition += 'for( '+ '__index__' +' = 0; ' + '__index__' +' < ' + expressionData + '; ' \
-					+ '__index__ ' + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + '__index__' + '] = ' \
+				addition += 'for( '+ index +' = 0; ' + index +' < ' + expressionData + '; ' \
+					+ index + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + index + '] = ' \
 					+ initialise(varType) + ';'
 
+	
 	if addition and addition not in history:
 		history.append(addition)		
 		# set what should be changed

@@ -16,7 +16,7 @@ Pre upotrebe alata potrebno je instalirati:
 
 ### Upotreba alata
 
-Pokrenuti komangu 
+Pokrenuti komandu 
 <pre> git clone https://github.com/LMladenovic/FixMe.git </pre>
 
 Pozicionirati se u folderu gde se nalazi glavni fajl <i>koronka.py</i>, kao i pomocni fajlovi u okviru foldera <i>utils</i>.
