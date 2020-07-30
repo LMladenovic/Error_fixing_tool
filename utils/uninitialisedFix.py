@@ -12,8 +12,11 @@ def uninitialisedStaticVariable(err, history):
 	for item in check:
 		if item.find(')')>=0:			
 			item = item[0: item.find(')')].strip()
+		elif item.find('[')>=0:
+			item = item[0:item.find('[')].strip()
 		else: 
 			item = item.strip()
+
 		for i in range(err.getProblemLines()[0], len(data)):		
 			if data[i].find(item)>0:			
 				# we found line where item is, let's check is that problematic line
@@ -22,11 +25,25 @@ def uninitialisedStaticVariable(err, history):
 				if end < 0:
 					start = data[i].find(item)	
 					varType = data[i][0:start].strip()
-					if initialise(varType)!= 'Invalid':
-						addition = data[i].replace(';' , '= ' + initialise(varType) + ';')
+
+					m = re.search('(.+)(int|float|double|char|boolean)[ ]+(.+)\[(.+)\].*;', data[i])
+					if m:
+						varType = m.group(2)
+						variable = m.group(3)
+						expressionData = m.group(4)
+						inl = m.group(1)
+						addition = initialiseUsingLoop(varType, variable, expressionData, inl, history)
+						err.setBugFix(data[i] + \
+						data[i].replace(data[i].strip() , addition))
+					else:
+						if initialise(varType)!= 'Invalid':
+							addition = data[i].replace(';' , '= ' + initialise(varType) + ';')
+							err.setBugFix(addition)
+
+					if addition:
 						err.setChangedLine(i+1)
 						err.setBug(data[i])
-						err.setBugFix(addition)	
+							
 						break
 
 		if addition not in history:
@@ -63,33 +80,10 @@ def uninitialisedDinamicllyAllocatedVariable(err, history):
 		variable = lineCausedProblems[lineCausedProblems.find('*') + 1 : lineCausedProblems.find('=')]
 		
 		if initialise(varType)!= 'Invalid':
-			if not re.findall('[a-zA-Z]+', expressionData) and eval(expressionData) == 1:
+			if not re.findall('[a-zA-Z]+', expressionData) and int(eval(expressionData)) == 1:
 				addition = lineCausedProblems[start:end] + " = " + initialise(varType) + ';'
 			else:
-				count = 0
-				for line in history:
-					if line.find('__index__') > 0 :	
-						count += 1
-
-				if count:
-					addition = 'int __index' + str(count) + '__;\n'
-					index = '__index' + str(count) + '__'
-				else:
-					addition = 'int '+ '__index__' +';\n'
-					index = '__index__'
-				
-				if re.findall('[a-zA-Z]+', inl):
-					inl = ''
-
-				if addition:
-					addition += inl
-
-				if not re.findall('[a-zA-Z]+', expressionData):
-					expressionData = str(eval(expressionData))
-
-				addition += 'for( '+ index +' = 0; ' + index +' < ' + expressionData + '; ' \
-					+ index + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + index + '] = ' \
-					+ initialise(varType) + ';'
+				addition = initialiseUsingLoop(varType, variable, expressionData, inl, history)
 
 	
 	if addition and addition not in history:
@@ -99,6 +93,35 @@ def uninitialisedDinamicllyAllocatedVariable(err, history):
 		err.setBugFix(lineCausedProblems + lineCausedProblems.replace(lineCausedProblems.strip() , addition) )
 
 
+def initialiseUsingLoop(varType, variable, expressionData, inl, history):
+	count = 0
+	addition = ''
+
+	for line in history:
+		if line.find('__index__') > 0 :	
+			count += 1
+
+	if count:
+		addition = 'int __index' + str(count) + '__;\n'
+		index = '__index' + str(count) + '__'
+	else:
+		addition = 'int '+ '__index__' +';\n'
+		index = '__index__'
+		
+	if re.findall('[a-zA-Z]+', inl):
+		inl = ''
+
+	if addition:
+		addition += inl
+
+	if not re.findall('[a-zA-Z]+', expressionData):
+		expressionData = str(int(eval(expressionData)))
+
+	addition += 'for( '+ index +' = 0; ' + index +' < ' + expressionData + '; ' \
+		+ index + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + index + '] = ' \
+		+ initialise(varType) + ';\n'
+
+	return addition	
 
 
 def initialise(varType):
@@ -107,7 +130,7 @@ def initialise(varType):
 		'double': '0',
 		'float': '0',
 		'boolean': 'False',
-		'char': ''
+		'char': '\'\\0\''
 	    }
 	
 	if varType in initialisator:

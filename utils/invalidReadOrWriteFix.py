@@ -27,14 +27,15 @@ def invalidReadOrWriteFix(err, history):
 		end = lineToChange.find('=')
 		varType = lineToChange[0:start].strip()
 		addition = lineToChange[:lineToChange.rfind(')')] + ' + ' + 'sizeof(' + varType + ')*' \
-			+ str((bytesAfter+elemSize)/elemSize) + ' );\n'
+			+ str(int((bytesAfter+elemSize)/elemSize)) + ' );\n'
 
 		m = re.search('(malloc|calloc|realloc)(.+);', addition)
 		if m:
 			expressionData = m.group(2).replace('(', '', 1)[::-1].replace(')', '', 1)[::-1].strip()
 			expressionData = re.sub('sizeof[ ]*\([ ]*(int|double|char|float)[ ]*\)', '1' , expressionData)
 			if not re.findall('[a-zA-z]+', expressionData):
-				addition = addition[:addition.find('(')+1] + ' sizeof(' + varType + ')*' + str(eval(expressionData)) + ' );\n'
+				addition = addition[:addition.find('(')+1] + ' sizeof(' + varType + ')*' \
+					+ str(int(eval(expressionData))) + ' );\n'
 			 
 
 		if addition not in history:

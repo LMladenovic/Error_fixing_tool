@@ -1,0 +1,75 @@
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x109191: main (7.c:7)
+Uninitialised value was created by a stack allocation
+at 0x109165: main (7.c:5)
+
+#####  Koronka made following changes in 7.c  #####
+
+Changed 6. line 
+	int  x;
+ with 
+	int  x= 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x1091E6: main (7.c:17)
+Uninitialised value was created by a stack allocation
+at 0x109165: main (7.c:5)
+
+#####  Koronka made following changes in 7.c  #####
+
+Changed 9. line 
+	int t[4];
+ with 
+	int t[4];
+	int __index__;
+	for( __index__ = 0; __index__ < 4; __index__ ++)
+		t[__index__] = 0;
+
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48C8240: __printf_fp_l (printf_fp.c:387)
+by 0x48E291F: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x109241: main (7.c:26)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x1091C2: main (7.c:14)
+
+#####  Koronka made following changes in 7.c  #####
+
+Changed 14. line 
+	float *u = malloc ( sizeof(float)*4) ;
+ with 
+	float *u = malloc ( sizeof(float)*4) ;
+	int __index1__;
+	for( __index1__ = 0; __index1__ < 4; __index1__ ++)
+		u[__index1__] = 0;
+
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid free() / delete / delete[] / realloc()
+at 0x483997B: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109286: main (7.c:32)
+Address 0x1ffefffcd0 is on thread 1's stack
+in frame #1, created by main (7.c:5)
+
+#####  Koronka made following changes in 7.c  #####
+
+Removed 32. line
+	free(t);
+
+

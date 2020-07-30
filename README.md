@@ -5,7 +5,7 @@
 Alat koji automatski otkriva greske u kodu napisanom u C-u koristeci alat Valgrind, a zatim ih ispravlja ukoliko je to u njegovoj moci. Razvijan pod Linux okruzenjem. Alat je nazvan Koronka, zbog trenutne situacije u kojoj se svi nalazimo. Osnovna svrha alata je demonstracija rada alata Valgrind, kao i tumacenje izvestaja o greskama koje Valgrind daje i njihovo uspesno otklanjanje.
 
 
-[Link do projekta](https://github.com/MATF-Software-Verification/05_redudantni_testovi.git) u okviru MATF Software verification organizacije
+[Link do projekta](https://github.com/MATF-Software-Verification/05_error_fixing_tool.git) u okviru MATF Software verification organizacije
 
 ### Podesavanje okruzenja
 
@@ -17,7 +17,7 @@ Pre upotrebe alata potrebno je instalirati:
 ### Upotreba alata
 
 Pokrenuti komandu 
-<pre> git clone https://github.com/LMladenovic/FixMe.git </pre>
+<pre> git clone https://github.com/LMladenovic/Error_fixing_tool.git </pre>
 
 Pozicionirati se u folderu gde se nalazi glavni fajl <i>koronka.py</i>, kao i pomocni fajlovi u okviru foldera <i>utils</i>.
 

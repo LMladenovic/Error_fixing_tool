@@ -39,16 +39,17 @@ def isKnownReason(newReason):
 
 def eliminateError(errorInfo, filename, history):
 	report = open("ExecutionReport.txt",'a')
-	report.write('#####  Based on Valgrind output:  #####\n\n')
-	report.write(errorInfo)	
-	
-	report.write('\n#####  Koronka made following changes in ' + filename + '  #####\n\n')
 
 	# define error and decide what to do to fix it 	
 	err = ErrorInfo(errorInfo[0:errorInfo.find('\n')], errorInfo, filename)
 	updateErrInfo(err)
 	
 	fix(err, history)
+
+	if err.getBug():
+		report.write('#####  Based on Valgrind output:  #####\n\n')
+		report.write(errorInfo)	
+		report.write('\n#####  Koronka made following changes in ' + filename + '  #####\n\n')
 
 	if err.getBug() and err.getBugFix():
 		# change in file what shoud be changed

@@ -34,8 +34,9 @@ def doJob(filename, clArguments):
 		for error in errorInfo:
 			if isKnownError(error[0:error.find('\n')]):
 				eliminateError(error, filename, history)
-				print("\n################ RUN FINISHED ###################\n\n")
-				break	
+				if len(history)>n:
+					print("\n################ RUN FINISHED ###################\n\n")
+					break	
 		
 		# check if koronka made some change, if so continue searching, else exit
 		if len(history) > n:	
