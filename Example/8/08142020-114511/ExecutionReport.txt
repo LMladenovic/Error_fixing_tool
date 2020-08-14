@@ -1,0 +1,51 @@
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x109179: main (8.c:9)
+Uninitialised value was created by a stack allocation
+at 0x109135: sum (8.h:4)
+
+#####  Koronka made following changes in 8.h  #####
+
+Changed 5. line 
+	int c;
+ with 
+	int c= 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x10919B: main (8.c:10)
+Uninitialised value was created by a stack allocation
+at 0x109150: main (8.c:5)
+
+#####  Koronka made following changes in 8.c  #####
+
+Changed 6. line 
+int a, b;
+ with 
+int a, b= 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x1091A2: main (8.c:10)
+Uninitialised value was created by a stack allocation
+at 0x109150: main (8.c:5)
+
+#####  Koronka made following changes in 8.c  #####
+
+Changed 8. line 
+int c;
+ with 
+int c= 0;
+
+

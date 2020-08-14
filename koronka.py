@@ -23,17 +23,16 @@ def copyNecessaryFiles(directory):
 	files = files.split(',')
 	for file in files:
 		if os.path.exists(path + file.strip()):
-			if not os.path.isfile(path + file.strip()):
-				copytree(path + file.strip(), directory + "/" + file.strip())
-				print ("Successfully moved directory " + file.strip())
-			else:		
+			if os.path.isfile(path + file.strip()):		
 				copyfile(path + file.strip(), directory + "/" + file.strip())
 				print ("Successfully moved file " + file.strip())
+			else:
+				print("The proceeded argument [" + file.strip() + "] is not a file.")
 		else:
 			print ("The file proceeded as argument [" + path + file.strip() + \
 				"] doesn't exist or is not a file.")
-			return 0
-	return 1					
+			return (0, [])
+	return (1, files)					
 
 def compileProgram(filename):
 	# trim .c from filename
@@ -41,7 +40,7 @@ def compileProgram(filename):
 	call(["gcc",  "-g", "-O0", "-Wall", filename , "-o", executeFile])
 	return executeFile
 
-def doJob(filename, clArguments):
+def doJob(filename, files, clArguments):
 
 	print("################ RUN STARTED ###################\n")	
 	executeFile = compileProgram(filename)
@@ -49,14 +48,14 @@ def doJob(filename, clArguments):
 	call(["valgrind", "--tool=memcheck", "--track-origins=yes", "--log-file=ValgrindLOG.txt" , "./" + executeFile, clArguments])
 	errorInfo = parseOutput()
 	# contain changes made to file, in order not to make same changes if they have allready made
-	history = ['']
+	history = [('',-1,'')]
 
 	while errorInfo:
 		n = len(history)
 		# eliminate errors one by one
 		for error in errorInfo:
 			if isKnownError(error[0:error.find('\n')]):
-				eliminateError(error, filename, history)
+				eliminateError(error, files, history)
 				if len(history)>n:
 					print("\n################ RUN FINISHED ###################\n\n")
 					break	
@@ -70,12 +69,13 @@ def doJob(filename, clArguments):
 			errorInfo = parseOutput()
 		else:
 			break
-
+	
 	print("\n################ RUN FINISHED ###################\n\n")
 	print("Koronka successfully fixed all that were in her power! :)")
 
 def main():
 	indicator = 1
+	files = []
 	now = datetime.now()
 	current_time = now.strftime("%m%d%Y-%H%M%S")
 
@@ -105,7 +105,9 @@ def main():
 			copyfile(sys.argv[1], directory + "/" + filename)
 			print ("Successfully created the directory "+ directory +" , and moved file " + filename)
 			if not indicator:
-				indicator = copyNecessaryFiles(directory)
+				(indicator, files) = copyNecessaryFiles(directory)
+			
+			files.append(filename)
 			os.chdir(directory)
 
 			try:
@@ -114,7 +116,7 @@ def main():
 					clArguments += sys.argv[i] + ' '
 				
 				if indicator:
-					doJob(filename, clArguments) 
+					doJob(filename, files[::-1], clArguments) 
 			
 			except OSError:
 				print ("Failed to run koronka :(")

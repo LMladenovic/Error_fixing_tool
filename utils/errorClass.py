@@ -1,10 +1,11 @@
 class ErrorInfo:
 
 	# Initialisation with errorType
-	def __init__(self, errorType, valgrindOutput, filename):
+	def __init__(self, errorType, valgrindOutput, files):
         	self.errorType = errorType
 		self.valgrindOutput = valgrindOutput
-		self.filename = filename
+		self.files = files
+		self.changedFile = ''
 		self.changedLine = -1
 		self.problemLines = []
 		self.errorReason = []
@@ -23,8 +24,8 @@ class ErrorInfo:
 	def getBugFix(self):
 		return self.bugFix
 
-	def getFilename(self):
-		return self.filename
+	def getFiles(self):
+		return self.files
 
 	def getValgrindOutput(self):
 		return self.valgrindOutput
@@ -34,6 +35,12 @@ class ErrorInfo:
 
 	def getProblemLines(self):
 		return self.problemLines
+	
+	def getChangedFile(self):
+		return self.changedFile
+	
+	def setChangedFile(self, filename):
+		self.changedFile = filename
 
 	def setProblemLines(self, problemLines):
 		self.problemLines=problemLines

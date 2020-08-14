@@ -37,30 +37,30 @@ def isKnownReason(newReason):
 	
 	return False
 
-def eliminateError(errorInfo, filename, history):
+def eliminateError(errorInfo, files, history):
 	report = open("ExecutionReport.txt",'a')
 
 	# define error and decide what to do to fix it 	
-	err = ErrorInfo(errorInfo[0:errorInfo.find('\n')], errorInfo, filename)
+	err = ErrorInfo(errorInfo[0:errorInfo.find('\n')], errorInfo, files)
 	updateErrInfo(err)
 	
-	fix(err, history)
+	fix(err, files, history)
 
 	if err.getBug():
 		report.write('#####  Based on Valgrind output:  #####\n\n')
 		report.write(errorInfo)	
-		report.write('\n#####  Koronka made following changes in ' + filename + '  #####\n\n')
+		report.write('\n#####  Koronka made following changes in ' + err.getChangedFile() + '  #####\n\n')
 
 	if err.getBug() and err.getBugFix():
 		# change in file what shoud be changed
-		f = open(filename,'r')
+		f = open(err.getChangedFile(),'r')
 		data = f.readlines()
 		f.close()
 
 		# change bug in code found by koronka
 		data[err.getChangedLine() -1] = err.getBugFix()
 
-		f = open(filename,'w')
+		f = open(err.getChangedFile(),'w')
 		for line in data:
 			f.write(line)
 		f.close()
@@ -74,7 +74,7 @@ def eliminateError(errorInfo, filename, history):
 
 
 def updateErrInfo(err):
-	filename = err.getFilename()
+	files = err.getFiles()
 
 	outputLines = err.getValgrindOutput().split('\n')
 	# contain informations about explicit reason which caused error
@@ -84,37 +84,38 @@ def updateErrInfo(err):
 	for line in outputLines:
 		if isKnownReason(line):
 			currentErrorReason.append(line)
-		if line.find(filename) >=0:
-			# last number in set is number of line in file with given filename
-			lineNumbers.append(int(re.findall(r'\d+', line)[-1:][0]))
+		for file in files:
+			if line.find(file) >=0:
+				# last number in set is number of line in file with given filename
+				lineNumbers.append((file, int(re.findall(r'\d+', line)[-1:][0])))
 	
 	lineNumbers = lineNumbers[::-1]		
 
 	err.setProblemLines(lineNumbers)
 	err.setErrorReason(currentErrorReason)
 
-def fix(err, history):
+def fix(err, files, history):
 
 	# fix error caused by uninitialised variable
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \
 	 'Uninitialised value was created by a stack allocation' in err.getErrorReason():
-		uninitialisedStaticVariable(err, history)
+		uninitialisedStaticVariable(err, files, history)
 
 	# fix error caused by uninitialised dinamiclly allocated variable
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \
 	 'Uninitialised value was created by a heap allocation' in err.getErrorReason():
-		uninitialisedDinamicllyAllocatedVariable(err, history)
+		uninitialisedDinamicllyAllocatedVariable(err, files, history)
 
 	# invalid free
 	if err.getErrorType() == 'Invalid free() / delete / delete[] / realloc()':
-		invalidFree(err, history)
+		invalidFree(err, files, history)
 
 	#invalid read or write
 	if err.getErrorType().find( 'Invalid read of size')>=0 and err.isKnownReason(' bytes after a block of size '):
-		invalidReadOrWriteFix(err, history)
+		invalidReadOrWriteFix(err, files, history)
 
 	if err.getErrorType().find( 'Invalid write of size')>=0 and err.isKnownReason(' bytes after a block of size '):
-		invalidReadOrWriteFix(err, history)
+		invalidReadOrWriteFix(err, files, history)
 
 
 
