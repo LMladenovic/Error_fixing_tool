@@ -22,9 +22,10 @@ Pokrenuti komandu
 Pozicionirati se u folderu gde se nalazi glavni fajl <i>koronka.py</i>, kao i pomocni fajlovi u okviru foldera <i>utils</i>.
 
 Alat se pokrece komandom
-<pre> python koronka.py [files=[list of files]] [c file|path to c file] [other arguments] </pre>
+<pre> python koronka.py [files=[list of files]] [structures=[list of user defined structures]] [c file|path to c file] [other arguments] </pre>
 
-[other arguments] - argumenti koji su potrebni C programu kao argumenti komandne linije ( u trenutnoj verziji projekta)
-[files = [list of files]] - dodatni fajlovi potrebni programu (npr. .h fajlovi)
+[other arguments] - argumenti koji su potrebni C programu kao argumenti komandne linije ( u trenutnoj verziji projekta)  
+[files = [list of files]] - dodatni fajlovi potrebni programu (npr. .h fajlovi)  
+[structures=[list of user defined structures]] - korisnicki definisane strukture (npr. Cvor stabla)  
 
 Alat ce u okviru direktorijuma u kom se nalazi kreirati folder po modelu datumPokretanja-VremePokretanja, u njega kopirati gore navedeni fajl kao argument nad kojim ce vrsiti ispravku, njih menjati, i na kraju generisati ExecutionReport sa izvestajem sta je i na koji nacin promenjeno. Na taj nacin originalni fajl ostaje nepromenjen, a rezultat rada alata i izmenjeni fajl se nalazi u pomenutom folderu. 

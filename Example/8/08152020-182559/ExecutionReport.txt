@@ -27,9 +27,9 @@ at 0x109150: main (8.c:5)
 #####  Koronka made following changes in 8.c  #####
 
 Changed 6. line 
-int a, b;
+	int a, b;
  with 
-int a, b= 0;
+	int a, b= 0;
 
 
 #####  Based on Valgrind output:  #####
@@ -44,8 +44,8 @@ at 0x109150: main (8.c:5)
 #####  Koronka made following changes in 8.c  #####
 
 Changed 8. line 
-int c;
+	int c;
  with 
-int c= 0;
+	int c= 0;
 
 
