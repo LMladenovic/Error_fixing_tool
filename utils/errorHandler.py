@@ -37,14 +37,14 @@ def isKnownReason(newReason):
 	
 	return False
 
-def eliminateError(errorInfo, files, history):
+def eliminateError(errorInfo, files, structures, history):
 	report = open("ExecutionReport.txt",'a')
 
 	# define error and decide what to do to fix it 	
 	err = ErrorInfo(errorInfo[0:errorInfo.find('\n')], errorInfo, files)
 	updateErrInfo(err)
 	
-	fix(err, files, history)
+	fix(err, files, structures, history)
 
 	if err.getBug():
 		report.write('#####  Based on Valgrind output:  #####\n\n')
@@ -94,7 +94,7 @@ def updateErrInfo(err):
 	err.setProblemLines(lineNumbers)
 	err.setErrorReason(currentErrorReason)
 
-def fix(err, files, history):
+def fix(err, files, structures, history):
 
 	# fix error caused by uninitialised variable
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \

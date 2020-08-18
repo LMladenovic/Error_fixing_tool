@@ -11,6 +11,7 @@ sys.dont_write_bytecode = True
 sys.path.append(os.path.abspath(os.getcwd() + "/utils"))
 from parseOutput import *
 from errorHandler import *
+from help import *
 
 def copyNecessaryFiles(directory, filePath, fileList):
 	# filePath possibly contains path to necessary files
@@ -43,6 +44,13 @@ def parseSturctures(structArgs):
 	return (1, structures)	
 
 def parseArguments(directory):
+	if sys.argv[0]=='koronka.py' and sys.argv[1]=='--help':
+		getHelpText()
+		return ('', '', [], [], 0)
+	elif sys.argv[0]=='koronka.py' and sys.argv[1].find('help')>0:
+		print('For help run python koronka.py --help')
+		return ('', '', [], [], 0)
+
 	fileNamePosition = -1
 	filename = ''
 	clArguments='' 
@@ -92,7 +100,7 @@ def compileProgram(filename):
 	call(["gcc",  "-g", "-O0", "-Wall", filename , "-o", executeFile])
 	return executeFile
 
-def doJob(filename, files, clArguments):
+def doJob(filename, files, structures, clArguments):
 
 	print("################ RUN STARTED ###################\n")	
 	executeFile = compileProgram(filename)
@@ -107,7 +115,7 @@ def doJob(filename, files, clArguments):
 		# eliminate errors one by one
 		for error in errorInfo:
 			if isKnownError(error[0:error.find('\n')]):
-				eliminateError(error, files, history)
+				eliminateError(error, files, structures, history)
 				if len(history)>n:
 					print("\n################ RUN FINISHED ###################\n\n")
 					break	
@@ -145,7 +153,7 @@ def main():
 			try:
 				if indicator:
 					os.chdir(directory)
-					doJob(filename, files[::-1], clArguments)
+					doJob(filename, files[::-1], structures, clArguments)
 				else:
 					if os.path.exists(directory):
 						rmtree(directory) 
