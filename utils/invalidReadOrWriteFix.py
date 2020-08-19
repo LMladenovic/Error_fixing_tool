@@ -1,5 +1,8 @@
 import re
 
+def getRegEx():
+	return '\(([a-zA-z0-9]*[ ]*\*[ ]*)*[ ]*sizeof[ ]*\(([a-zA-z0-9\* ]*)\)[ ]*(\*[ ]*[a-zA-z0-9]*)*[ ]*[\)\+]'
+
 def invalidReadOrWriteFix(err, files, history):
 
 	for file in files:
@@ -12,9 +15,10 @@ def invalidReadOrWriteFix(err, files, history):
 		addition = ''
 		
 		for elem in err.getProblemLines():
-			if re.findall('[malloc|calloc|realloc].+;', data[elem[1]-1]) and elem[0]==file:
+			if re.findall('.+(malloc|calloc|realloc)+.*', data[elem[1]-1]) and elem[0]==file:
 				lineToChange = data[elem[1]-1]
 				err.setChangedLine(elem[1])
+				err.setChangedFile(file)
 				elemSize = int(re.findall('\d+', err.getErrorType())[0])
 				break
 
@@ -24,23 +28,24 @@ def invalidReadOrWriteFix(err, files, history):
 				break
 
 		if elemSize != '' and bytesAfter != '':
-			start = lineToChange.find('*')
-			end = lineToChange.find('=')
-			varType = lineToChange[0:start].strip()
-			addition = lineToChange[:lineToChange.rfind(')')] + ' + ' + 'sizeof(' + varType + ')*' \
-				+ str(int((bytesAfter+elemSize)/elemSize)) + ' );\n'
+			size = str(int((bytesAfter+elemSize)/elemSize)) 
 
-			m = re.search('(malloc|calloc|realloc)(.+);', addition)
+			m = re.search('\(([a-zA-z0-9]*[ ]*\*[ ]*)*[ ]*sizeof[ ]*\(([a-zA-z0-9\* ]*)\)[ ]*(\*[ ]*[a-zA-z0-9]*)*([ ]*[\)\+])'\
+					, lineToChange)
+
 			if m:
-				expressionData = m.group(2).replace('(', '', 1)[::-1].replace(')', '', 1)[::-1].strip()
-				expressionData = re.sub('sizeof[ ]*\([ ]*(int|double|char|float)[ ]*\)', '1' , expressionData)
-				if not re.findall('[a-zA-z]+', expressionData):
-					addition = addition[:addition.find('(')+1] + ' sizeof(' + varType + ')*' \
-						+ str(int(eval(expressionData))) + ' );\n'
-				 
+				if m.group(1) and m.group(2):
+					addition =  '(' + m.group(1) + 'sizeof(' + m.group(2) + ')' + \
+					' + ' + size + '*sizeof(' + m.group(2) + ')' + m.group(4)
+	
+				if m.group(2) and m.group(3):
+					addition = '(' + 'sizeof(' + m.group(2) + ')' + m.group(3) + \
+						' +' + size + '*sizeof(' + m.group(2) + ')' + m.group(4)
+
+				addition = re.sub(getRegEx(), addition, lineToChange)
 
 			if (addition, err.getChangedLine(), err.getChangedFile()) not in history:
-				err.setChangedFile(file)
+				
 				err.setBug(lineToChange)
 				err.setBugFix(addition)	
 				history.append((addition, err.getChangedLine(), err.getChangedFile()))

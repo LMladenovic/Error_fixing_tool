@@ -22,18 +22,23 @@ def copyNecessaryFiles(directory, filePath, fileList):
 	files = fileList[fileList.find('[')+1::]
 	files = files[0:files.rfind(']')]
 	files = files.split(',')
+	filesOfImportance = []
+
 	for file in files:
 		if os.path.exists(path + file.strip()):
 			if os.path.isfile(path + file.strip()):		
 				copyfile(path + file.strip(), directory + "/" + file.strip())
 				print ("Successfully moved file " + file.strip())
+				if file.strip().rfind('.c')==len(file.strip())-2 or file.strip().rfind('.h')==len(file.strip())-2:
+					filesOfImportance.append(file.strip()) 
 			else:
 				print("The proceeded argument [" + file.strip() + "] is not a file.")
 		else:
 			print ("The file proceeded as argument [" + path + file.strip() + \
 				"] doesn't exist or is not a file.")
 			return (0, [])
-	return (1, files)
+
+	return (1, filesOfImportance)
 
 def parseSturctures(structArgs):
 	structures = structArgs[structArgs.find('[')+1::]
@@ -89,7 +94,7 @@ def parseArguments(directory):
 	
 	# parse main program arguments 
 	for i in range(fileNamePosition+1, len(sys.argv)):
-		clArguments += sys.argv[i] + ' '
+		clArguments += sys.argv[i]
 
 	return (filename, clArguments, files, structures, indicator)
 							
@@ -149,7 +154,8 @@ def main():
 						
 			######  COPYING FILES TO WORKING DIRECTORY AND PARSE OTHER ARGUMENTS  ######
 			(filename, clArguments, files, structures, indicator) = parseArguments(directory)
-			files.append(filename)			
+			files.append(filename)
+			
 			try:
 				if indicator:
 					os.chdir(directory)
