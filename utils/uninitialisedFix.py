@@ -21,14 +21,25 @@ def uninitialisedStaticVariable(err, files, history):
 				break
 			m= re.search('(.*)(int|float|double|char|boolean)[ ]+.*;',data[i])
 			if m:
+				if data[i+1].find('__index__')>=0:
+					continue
 				if data[i].find('[')>0:
-					m = re.search('([ \t]*)(int|float|double|char|boolean)[ ]+(.+)\[(.+)\].*;', data[i])
+					m = re.search('([ \t]*)(int|float|double|char|boolean)[ ]+([a-zA-Z0-9_-]+)\[(.+)\].*;', data[i])
 					if m:
 						varType = m.group(2)
 						variable = m.group(3)
 						expressionData = m.group(4)
+
+						temporaryData = data[i][data[i].find(m.group(3)):]
+						temporaryLen = len(re.findall('\[', temporaryData))
+						newExpressionData = []
+						for k in range(0,temporaryLen):
+							newExpressionData.append(\
+							temporaryData[temporaryData.find('[')+1:temporaryData.find(']')])	
+							temporaryData = temporaryData[temporaryData.find(']')+1:]	
+
 						inl = m.group(1)
-						addition = initialiseUsingLoop(varType, variable, expressionData, inl, history)
+						addition = initialiseUsingLoop(varType, variable, temporaryLen, newExpressionData, inl, history)
 						err.setBugFix(data[i] + data[i].replace(data[i].strip() , addition))
 				else:
 					m = re.search('([ \t]*)(int|float|double|char|boolean)[ ]+(.+).*;', data[i])
@@ -83,9 +94,8 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 				if not re.findall('[a-zA-Z]+', expressionData) and int(eval(expressionData)) == 1:
 					addition = lineCausedProblems[start:end] + " = " + initialise(varType) + ';'
 				else:
-					addition = initialiseUsingLoop(varType, variable, expressionData, inl, history)
+					addition = initialiseUsingLoop(varType, variable, 1, [expressionData], inl, history)
 
-		
 		if addition and (addition, err.getChangedLine(), err.getChangedFile()) not in history:
 			err.setChangedFile(file)
 			history.append((addition, err.getChangedLine(), err.getChangedFile()))		
@@ -95,33 +105,55 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 			break
 
 
-def initialiseUsingLoop(varType, variable, expressionData, inl, history):
+def initialiseUsingLoop(varType, variable, length, expressionData, inl, history):
 	count = 0
 	addition = ''
-
+	index = []
+	
 	for line in history:
-		if line[0].find('__index__') > 0 :	
+		searchLine = line[0]
+		while re.findall('int __index__', searchLine):
+			
+			searchLine = searchLine[searchLine.find('int __index__')+len('int __index__'):]
 			count += 1
 
-	if count:
-		addition = 'int __index' + str(count) + '__;\n'
-		index = '__index' + str(count) + '__'
-	else:
-		addition = 'int '+ '__index__' +';\n'
-		index = '__index__'
+	for i in range(0,length):
+		if count:
+			addition += 'int __index' + str(count+1) + '__;\n' + inl
+			index.append( '__index' + str(count+1) + '__')
+			count +=1
+		else:
+			addition += 'int '+ '__index__' +';\n' + inl
+			index.append( '__index__')
+			count += 1
 		
 	if re.findall('[a-zA-Z]+', inl):
 		inl = ''
 
-	if addition:
+	addition = addition[0:addition.rfind(inl)]
+
+	for i in range(0,length):
+		if not re.findall('[a-zA-Z]+', expressionData[i]):
+			expressionData[i] = str(int(eval(expressionData[i])))
+
+		for j in range(0,i+1):
+			addition += inl
+
+		addition += 'for( '+ index[i] +' = 0; ' + index[i] +' < ' + expressionData[i] + '; ' \
+			+ index[i] + ' ++)\n'
+
+	for i in range(0,length+1):
 		addition += inl
 
-	if not re.findall('[a-zA-Z]+', expressionData):
-		expressionData = str(int(eval(expressionData)))
+	# under comments because variable will always be sent in correct syntax
+	#if variable.find('[')>=0:
+	#	variable = variable[0:variable.find('[')]	
+	
+	arrayIndex = ''
+	for i in range(0,length):
+		arrayIndex += '[' + index[i] + ']'
 
-	addition += 'for( '+ index +' = 0; ' + index +' < ' + expressionData + '; ' \
-		+ index + ' ++)\n' +inl + '\t' +  variable.strip() + '[' + index + '] = ' \
-		+ initialise(varType) + ';\n'
+	addition += '\t' +  variable.strip() + arrayIndex + ' = ' + initialise(varType) + ';\n'
 
 	return addition	
 
