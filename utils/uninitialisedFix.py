@@ -16,15 +16,15 @@ def uninitialisedStaticVariable(err, files, history):
 	
 	if not indicator:
 		for i in range(err.getProblemLines()[0][1], len(data)):
-			m = re.search('(.*)(int|float|double|char|boolean|void)[ ]+.*{',data[i])
+			m = re.search('(.*)(([a-zA-Z_-]+))[ ]+.*{',data[i])
 			if m:
 				break
-			m= re.search('(.*)(int|float|double|char|boolean)[ ]+.*;',data[i])
+			m= re.search('(.*)([a-zA-Z_-]+)[ ]+.*;',data[i])
 			if m:
 				if data[i+1].find('__index__')>=0:
 					continue
 				if data[i].find('[')>0:
-					m = re.search('([ \t]*)(int|float|double|char|boolean)[ ]+([a-zA-Z0-9_-]+)\[(.+)\].*;', data[i])
+					m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z0-9_-]+)\[(.+)\].*;', data[i])
 					if m:
 						varType = m.group(2)
 						variable = m.group(3)
@@ -42,7 +42,7 @@ def uninitialisedStaticVariable(err, files, history):
 						addition = initialiseUsingLoop(varType, variable, temporaryLen, newExpressionData, inl, history)
 						err.setBugFix(data[i] + data[i].replace(data[i].strip() , addition))
 				else:
-					m = re.search('([ \t]*)(int|float|double|char|boolean)[ ]+(.+).*;', data[i])
+					m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+(.+).*;', data[i])
 					if m:
 						if data[i][data[i].find(m.group(2))::].find('=')<0:
 							varType = m.group(2)
@@ -72,7 +72,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 		addition=''
 
 		for elem in err.getProblemLines():
-			m = re.search('(malloc|calloc|realloc)(.+);', data[elem[1]-1])
+			m = re.search('(malloc|calloc|realloc)(.+)', data[elem[1]-1])
 			if m:
 				lineCausedProblems = data[elem[1] - 1]
 				err.setChangedLine(elem[1])
@@ -81,9 +81,9 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 
 
 		m = re.search('(malloc|calloc|realloc)(.+);', lineCausedProblems)
-		if m:
+		if m and not addition:
 			expressionData = m.group(2).replace('(', '', 1)[::-1].replace(')', '', 1)[::-1].strip()
-			expressionData = re.sub('sizeof[ ]*\([ ]*(int|double|char|float)[ ]*\)', '1' , expressionData)
+			expressionData = re.sub('sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)', '1' , expressionData)
 			start = lineCausedProblems.find('*')
 			end = lineCausedProblems.find('=')
 			varType = lineCausedProblems[0:start].strip()
@@ -103,6 +103,53 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 			err.setBug(lineCausedProblems)
 			err.setBugFix(lineCausedProblems + lineCausedProblems.replace(lineCausedProblems.strip() , addition) )
 			break
+		
+		# if statement 
+		m = re.search('(malloc|calloc|realloc)(.+)', lineCausedProblems)
+		if m and not addition:
+
+			# here we get varType, variable, expressionData and inl
+			start = lineCausedProblems.find('sizeof(') + 7
+			end = lineCausedProblems[start:].find(')')
+			varType = lineCausedProblems[start:][0:end]
+			n = re.search('([ \t]*).*\([ ]*(.*)[ ]*=[ ]*(malloc|calloc|realloc)[ ]*\((.*)NULL', lineCausedProblems)
+			if n:
+				inl = n.group(1)
+				variable = n.group(2)
+				expressionData = re.sub('sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)', '1' , n.group(4))
+				if expressionData.find(')')>=0:
+					expressionData = expressionData[0:expressionData.find(')')]	
+ 
+			# here we find where to add initialisation code
+			indicator = 0
+			if m.group(2).find('!=')>=0:
+				addition = '\t' + initialiseUsingLoop(varType, variable, 1, [expressionData], inl + '\t', history)
+			elif m.group(2).find('==')>=0:
+				addition = lineCausedProblems.replace('==' , '!=')
+				addition += inl + '\t'
+				addition += initialiseUsingLoop(varType, variable, 1, [expressionData], inl + '\t' , history)
+				addition += inl + '}\n'
+				addition = lineCausedProblems.replace(lineCausedProblems, addition) + \
+					   lineCausedProblems.replace(lineCausedProblems.lstrip() , 'else ') + \
+					   'if (' + variable + '==NULL)'
+				if lineCausedProblems.find('{')>=0:
+					addition += '{\n'
+				else:
+					addition += '\n'
+
+				# ZAMENI DA BUDE ELSE IF P[I] == NULL 
+				indicator = 1;
+			
+			if addition and (addition, err.getChangedLine(), err.getChangedFile()) not in history:
+				err.setChangedFile(file)
+				history.append((addition, err.getChangedLine(), err.getChangedFile()))		
+				# set what should be changed
+				err.setBug(lineCausedProblems)
+				if indicator:
+					err.setBugFix(addition)
+				else:
+					err.setBugFix(lineCausedProblems + lineCausedProblems.replace(lineCausedProblems.strip() , addition))
+				break		
 
 
 def initialiseUsingLoop(varType, variable, length, expressionData, inl, history):
@@ -144,16 +191,12 @@ def initialiseUsingLoop(varType, variable, length, expressionData, inl, history)
 
 	for i in range(0,length+1):
 		addition += inl
-
-	# under comments because variable will always be sent in correct syntax
-	#if variable.find('[')>=0:
-	#	variable = variable[0:variable.find('[')]	
 	
 	arrayIndex = ''
 	for i in range(0,length):
 		arrayIndex += '[' + index[i] + ']'
 
-	addition += '\t' +  variable.strip() + arrayIndex + ' = ' + initialise(varType) + ';\n'
+	addition +=  variable.strip() + arrayIndex + ' = ' + initialise(varType) + ';\n'
 
 	return addition	
 

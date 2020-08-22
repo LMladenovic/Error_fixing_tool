@@ -32,7 +32,10 @@ int main(int argc, char *argv[]){
     exit(EXIT_FAILURE);
   }
   for(i=0;i<n;i++)
-    if ((P[i]=malloc(n*sizeof(int)))==NULL){
+    if ((P[i]=malloc(n*sizeof(int)))!=NULL){
+      printf("Uspesna alokacija\n");
+	  }
+    else{
       fprintf(stderr,"Greska malloc()!\n");
       for (j=0;j<i;j++)
         free(P[j]);

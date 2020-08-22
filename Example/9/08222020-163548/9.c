@@ -9,7 +9,7 @@ int main(){
 	int c[3];
 	int __index__;
 	for( __index__ = 0; __index__ < 3; __index__ ++)
-			c[__index__] = 0;
+		c[__index__] = 0;
 
 	int k= 0;
 	
@@ -22,7 +22,7 @@ int main(){
 	int __index3__;
 	for( __index2__ = 0; __index2__ < 3; __index2__ ++)
 		for( __index3__ = 0; __index3__ < 3; __index3__ ++)
-				a[__index2__][__index3__] = 0;
+			a[__index2__][__index3__] = 0;
 
 
 	int i,j;
