@@ -1,6 +1,9 @@
 import re
+from invalidReadOrWriteFix import *
+from userDefinedStructuresHandler import *
+from initialisationUtils import *
 
-def uninitialisedStaticVariable(err, files, history):
+def uninitialisedStaticVariable(err, files, structures, history):
 	# indicator whether the fix is found or not	
 	indicator = 0
 	# open and read file to get line that caused problems
@@ -16,14 +19,16 @@ def uninitialisedStaticVariable(err, files, history):
 	
 	if not indicator:
 		for i in range(err.getProblemLines()[0][1], len(data)):
-			m = re.search('(.*)(([a-zA-Z_-]+))[ ]+.*{',data[i])
+			m = re.search('([ \t]*)(([a-zA-Z_-]+))[ ]+.*{',data[i])
 			if m:
 				break
-			m= re.search('(.*)([a-zA-Z_-]+)[ ]+.*;',data[i])
+			m= re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z_-]+).*;',data[i])
 			if m:
 				if data[i+1].find('__index__')>=0:
 					continue
-				if data[i].find('[')>0:
+				elif data[i+1].find(m.group(3))>=0:
+					continue
+				elif data[i].find('[')>0:
 					m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z0-9_-]+)\[(.+)\].*;', data[i])
 					if m:
 						varType = m.group(2)
@@ -39,14 +44,26 @@ def uninitialisedStaticVariable(err, files, history):
 							temporaryData = temporaryData[temporaryData.find(']')+1:]	
 
 						inl = m.group(1)
-						addition = initialiseUsingLoop(varType, variable, temporaryLen, newExpressionData, inl, history)
-						err.setBugFix(data[i] + data[i].replace(data[i].strip() , addition))
+						if checkStructure(varType, structures):
+							addition = initialiseUserStructureUsingLoop(varType, variable, temporaryLen, newExpressionData, inl, files, structures, history)
+						else:
+							addition = initialiseUsingLoop(varType, variable, temporaryLen, newExpressionData, inl, history)
+						err.setBugFix(data[i] + addition)
 				else:
 					m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+(.+).*;', data[i])
 					if m:
 						if data[i][data[i].find(m.group(2))::].find('=')<0:
 							varType = m.group(2)
-							if initialise(varType)!= 'Invalid':
+							if data[i].find('*')>=0:
+								addition = data[i].replace(';' , '= NULL;')
+								err.setBugFix(addition)
+							elif checkStructure(varType, structures):
+								variable=m.group(3)
+								inl = m.group(1)
+								addition = data[i] + \
+								initialiseStructure(varType, variable, inl, files, structures, history)
+								err.setBugFix(addition)
+							elif initialise(varType)!= 'Invalid':
 								addition = data[i].replace(';' , '= ' + initialise(varType) + ';')
 								err.setBugFix(addition)
 
@@ -62,7 +79,7 @@ def uninitialisedStaticVariable(err, files, history):
 
 	f.close()
 
-def uninitialisedDinamicllyAllocatedVariable(err, files, history):
+def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 
 	for file in files:
 		f = open( file, "r")
@@ -72,13 +89,30 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 		addition=''
 
 		for elem in err.getProblemLines():
+			# case where we have to initialise dinamicaly allocated memory
 			m = re.search('(malloc|calloc|realloc)(.+)', data[elem[1]-1])
 			if m:
+				err.setChangedFile(file)
 				lineCausedProblems = data[elem[1] - 1]
 				err.setChangedLine(elem[1])
 				break
-		
+			
+			# case where user just deffined variable, and haven't allocated memory so we have to initialise it with NULL
+			m = re.search('[ ]*([a-zA-Z_-]+)[ ]*[\*]+[ ]*([a-zA-z_0-9]+)[ ]*;', data[elem[1]-1])
+			if m:
+				err.setChangedFile(file)
+				lineCausedProblems = data[elem[1] - 1]
+				err.setChangedLine(elem[1])
+				err.setBug(lineCausedProblems)
+				addition = lineCausedProblems[0:lineCausedProblems.find(';')] + '= NULL;\n'
+				break
 
+		if addition and (addition, err.getChangedLine(), err.getChangedFile()) not in history:
+			history.append((addition, err.getChangedLine(), err.getChangedFile()))		
+			# set what should be changed
+			err.setBug(lineCausedProblems)
+			err.setBugFix(addition)
+			break
 
 		m = re.search('(malloc|calloc|realloc)(.+);', lineCausedProblems)
 		if m and not addition:
@@ -97,7 +131,6 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 					addition = initialiseUsingLoop(varType, variable, 1, [expressionData], inl, history)
 
 		if addition and (addition, err.getChangedLine(), err.getChangedFile()) not in history:
-			err.setChangedFile(file)
 			history.append((addition, err.getChangedLine(), err.getChangedFile()))		
 			# set what should be changed
 			err.setBug(lineCausedProblems)
@@ -136,12 +169,13 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 					addition += '{\n'
 				else:
 					addition += '\n'
-
-				# ZAMENI DA BUDE ELSE IF P[I] == NULL 
 				indicator = 1;
+			else:
+				addition = lineCausedProblems.replace(lineCausedProblems.lstrip(), 'if (' + variable + '!=NULL)')
+				addition += inl + '\t'
+				addition += initialiseUsingLoop(varType, variable, 1, [expressionData], inl + '\t' , history)
 			
 			if addition and (addition, err.getChangedLine(), err.getChangedFile()) not in history:
-				err.setChangedFile(file)
 				history.append((addition, err.getChangedLine(), err.getChangedFile()))		
 				# set what should be changed
 				err.setBug(lineCausedProblems)
@@ -154,7 +188,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, history):
 
 def initialiseUsingLoop(varType, variable, length, expressionData, inl, history):
 	count = 0
-	addition = ''
+	addition = inl
 	index = []
 	
 	for line in history:
@@ -199,19 +233,4 @@ def initialiseUsingLoop(varType, variable, length, expressionData, inl, history)
 	addition +=  variable.strip() + arrayIndex + ' = ' + initialise(varType) + ';\n'
 
 	return addition	
-
-
-def initialise(varType):
-	initialisator = {
-		'int': '0',
-		'double': '0',
-		'float': '0',
-		'boolean': 'False',
-		'char': '\'\\0\''
-	    }
-	
-	if varType in initialisator:
-		return initialisator[varType]
-	else:
-		return 'Invalid'
 

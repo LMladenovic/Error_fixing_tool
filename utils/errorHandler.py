@@ -99,12 +99,12 @@ def fix(err, files, structures, history):
 	# fix error caused by uninitialised variable
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \
 	 'Uninitialised value was created by a stack allocation' in err.getErrorReason():
-		uninitialisedStaticVariable(err, files, history)
+		uninitialisedStaticVariable(err, files, structures, history)
 
 	# fix error caused by uninitialised dinamiclly allocated variable
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \
 	 'Uninitialised value was created by a heap allocation' in err.getErrorReason():
-		uninitialisedDinamicllyAllocatedVariable(err, files, history)
+		uninitialisedDinamicllyAllocatedVariable(err, files, structures, history)
 
 	# invalid free
 	if err.getErrorType() == 'Invalid free() / delete / delete[] / realloc()':

@@ -1,0 +1,48 @@
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x10917D: main (12.c:16)
+Uninitialised value was created by a stack allocation
+at 0x109149: main (12.c:10)
+
+#####  Koronka made following changes in 12.c  #####
+
+Changed 12. line 
+	Point A;
+ with 
+	Point A;
+	A.x=0;
+	A.y=0;
+	int __index__;
+	for( __index__ = 0; __index__ < 3; __index__ ++)
+		A.consts[__index__] = 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x109228: main (12.c:25)
+Uninitialised value was created by a stack allocation
+at 0x109145: main (12.c:10)
+
+#####  Koronka made following changes in 12.c  #####
+
+Changed 19. line 
+	Point B[5];
+ with 
+	Point B[5];
+	int __index2__;
+	for( __index2__ = 0; __index2__ < 5; __index2__ ++){
+			B[__index2__].x=0;
+			B[__index2__].y=0;
+			int __index2__;
+			for( __index2__ = 0; __index2__ < 3; __index2__ ++)
+				B[__index2__].consts[__index2__] = 0;
+		
+	}
+
+
