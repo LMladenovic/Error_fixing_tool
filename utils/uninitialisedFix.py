@@ -22,6 +22,14 @@ def uninitialisedStaticVariable(err, files, structures, history):
 			m = re.search('([ \t]*)(([a-zA-Z_-]+))[ ]+.*{',data[i])
 			if m:
 				break
+			m= re.search('([ \t]*)([a-zA-Z_-]+)([ ]*[\*][ ]*)+([a-zA-Z_-]+).*;',data[i])
+			if m and data[i].find('=')<0:
+				addition = data[i].replace(';' , '= NULL;')
+				err.setBugFix(addition)
+				err.setChangedFile(err.getProblemLines()[0][0])
+				err.setChangedLine(i+1)
+				err.setBug(data[i])
+				break
 			m= re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z_-]+).*;',data[i])
 			if m:
 				if data[i+1].find('__index__')>=0:

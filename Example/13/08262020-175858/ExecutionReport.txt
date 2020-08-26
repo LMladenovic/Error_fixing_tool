@@ -1,0 +1,82 @@
+#####  Based on Valgrind output:  #####
+
+Use of uninitialised value of size 8
+at 0x109160: main (13.c:16)
+Uninitialised value was created by a stack allocation
+at 0x109145: main (13.c:10)
+
+#####  Koronka made following changes in 13.c  #####
+
+Changed 11. line 
+	int *t;
+ with 
+	int *t= NULL;
+
+
+#####  Based on Valgrind output:  #####
+
+Use of uninitialised value of size 8
+at 0x109168: main (13.c:16)
+Uninitialised value was created by a stack allocation
+at 0x109145: main (13.c:10)
+
+#####  Koronka made following changes in 13.c  #####
+
+Changed 12. line 
+	Point *A;
+ with 
+	Point *A= NULL;
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid read of size 4
+at 0x109170: main (13.c:16)
+Address 0x4 is not stack'd, malloc'd or (recently) free'd
+
+#####  Koronka made following changes in 13.c  #####
+
+Changed 16. line 
+	printf("Point A(%d,%d)\n", A->x, A->y);
+ with 
+//	printf("Point A(%d,%d)\n", A->x, A->y);
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x1091B0: main (13.c:21)
+Uninitialised value was created by a stack allocation
+at 0x109145: main (13.c:10)
+
+#####  Koronka made following changes in 13.c  #####
+
+Changed 13. line 
+	int x[3];
+ with 
+	int x[3];
+	int __index__;
+	for( __index__ = 0; __index__ < 3; __index__ ++)
+		x[__index__] = 0;
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48C8240: __printf_fp_l (printf_fp.c:387)
+by 0x48E291F: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x1091F0: main (13.c:26)
+Uninitialised value was created by a stack allocation
+at 0x109145: main (13.c:10)
+
+#####  Koronka made following changes in 13.c  #####
+
+Changed 17. line 
+	float rN;
+ with 
+	float rN= 0;
+
+

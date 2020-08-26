@@ -16,7 +16,8 @@ errorType = [
 errorReason = [
 	'Uninitialised value was created by a stack allocation',
 	'Uninitialised value was created by a heap allocation',
-	' bytes after a block of size '
+	' bytes after a block of size ',
+	'is not stack\'d, malloc\'d or (recently) free\'d'
 
 ]
 
@@ -100,6 +101,10 @@ def fix(err, files, structures, history):
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \
 	 'Uninitialised value was created by a stack allocation' in err.getErrorReason():
 		uninitialisedStaticVariable(err, files, structures, history)
+	
+	if err.getErrorType().find('Use of uninitialised value of size ')>=0 and \
+	err.isKnownReason('Uninitialised value was created by a stack allocation'):
+		uninitialisedStaticVariable(err, files, structures, history)
 
 	# fix error caused by uninitialised dinamiclly allocated variable
 	if err.getErrorType() == 'Conditional jump or move depends on uninitialised value(s)' and \
@@ -116,6 +121,18 @@ def fix(err, files, structures, history):
 
 	if err.getErrorType().find( 'Invalid write of size')>=0 and err.isKnownReason(' bytes after a block of size '):
 		invalidReadOrWriteFix(err, files, history)
+
+	# need to comment the line 
+	if err.getErrorType().find('Invalid read of size')>=0 and err.isKnownReason('is not stack\'d, malloc\'d or (recently) free\'d'):
+		f = open(err.getProblemLines()[0][0], "r")
+		data = f.readlines()
+		f.close()
+		err.setChangedFile(err.getProblemLines()[0][0])
+		err.setChangedLine(err.getProblemLines()[0][1])	
+		err.setBugFix('//' + data[err.getChangedLine()-1])
+		err.setBug(data[err.getChangedLine()-1])
+		if (err.getBugFix(), err.getChangedLine(), err.getChangedFile()) not in history:
+			history.append((err.getBugFix(), err.getChangedLine(), err.getChangedFile()))
 
 
 
