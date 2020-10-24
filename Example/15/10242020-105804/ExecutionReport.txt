@@ -1,0 +1,28 @@
+#####  Based on Valgrind output:  #####
+
+Argument 'size' of function malloc has a fishy (possibly negative) value: -15
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10916F: main (15.c:5)
+
+#####  Koronka made following changes in 15.c  #####
+
+Changed 5. line 
+	char *r = malloc(-15);
+ with 
+	char *r = malloc(abs(-15));
+
+
+#####  Based on Valgrind output:  #####
+
+Argument 'size' of function realloc has a fishy (possibly negative) value: -12
+at 0x483AD4B: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109192: main (15.c:7)
+
+#####  Koronka made following changes in 15.c  #####
+
+Changed 7. line 
+	t = (int *)realloc(t, -3*sizeof(int)); 
+ with 
+	t = (int *)realloc(t,abs( -3*sizeof(int))); 
+
+

@@ -4,20 +4,23 @@ from uninitialisedFix import *
 from invalidFreeFix import *
 import re
 from invalidReadOrWriteFix import *
+from fishyArgumentFix import *
 
 errorType = [
 	'Conditional jump or move depends on uninitialised value(s)',
 	'Use of uninitialised value of size ',
 	'Invalid free() / delete / delete[] / realloc()',
 	'Invalid read of size ',
-	'Invalid write of size '
+	'Invalid write of size ',
+	' has a fishy (possibly negative) value:'
 ]
 
 errorReason = [
 	'Uninitialised value was created by a stack allocation',
 	'Uninitialised value was created by a heap allocation',
 	' bytes after a block of size ',
-	'is not stack\'d, malloc\'d or (recently) free\'d'
+	'is not stack\'d, malloc\'d or (recently) free\'d',
+	' bytes before a block of size '
 
 ]
 
@@ -121,6 +124,15 @@ def fix(err, files, structures, history):
 
 	if err.getErrorType().find( 'Invalid write of size')>=0 and err.isKnownReason(' bytes after a block of size '):
 		invalidReadOrWriteFix(err, files, history)
+
+	if err.getErrorType().find( 'Invalid read of size')>=0 and err.isKnownReason(' bytes before a block of size '):
+		leftSideInvalidReadOrWriteFix(err, files, history)
+
+	if err.getErrorType().find( 'Invalid write of size')>=0 and err.isKnownReason(' bytes before a block of size '):
+		leftSideInvalidReadOrWriteFix(err, files, history)
+
+	if err.getErrorType().find(' has a fishy (possibly negative) value:')>=0:
+		fishyArgumentFix(err, files, history)
 
 	# need to comment the line 
 	if err.getErrorType().find('Invalid read of size')>=0 and err.isKnownReason('is not stack\'d, malloc\'d or (recently) free\'d'):

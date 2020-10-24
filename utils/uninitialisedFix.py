@@ -34,7 +34,7 @@ def uninitialisedStaticVariable(err, files, structures, history):
 			if m:
 				if data[i+1].find('__index__')>=0:
 					continue
-				elif data[i+1].find(m.group(3))>=0:
+				elif data[i+1].find(m.group(3)+ '.')>=0:
 					continue
 				elif data[i].find('[')>0:
 					m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z0-9_-]+)\[(.+)\].*;', data[i])

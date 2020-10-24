@@ -51,3 +51,35 @@ def invalidReadOrWriteFix(err, files, history):
 				history.append((addition, err.getChangedLine(), err.getChangedFile()))
 				break	
 
+def leftSideInvalidReadOrWriteFix(err, files, history):
+	fileToChange = err.getProblemLines()[1][0]
+	numOfLineToChange = err.getProblemLines()[1][1]
+	addition = ''
+
+	if fileToChange in files:
+		f = open( fileToChange, "r")
+		data = f.readlines()
+		f.close()
+		lineToChange = data[numOfLineToChange-1]
+		bufferLine = lineToChange
+		addition = ''
+		if bufferLine.rfind('\"')>0:
+			addition += bufferLine[0:bufferLine.rfind('\"')+1]
+			bufferLine = bufferLine[bufferLine.rfind('\"')+1:]
+		
+		while(bufferLine.find('[')>=0):
+			addition += bufferLine[0:bufferLine.find('[')+1]
+			addition += 'abs('
+			addition += bufferLine[bufferLine.find('[')+1:bufferLine.find(']')]
+			addition += ')]'
+			bufferLine =  bufferLine[bufferLine.find(']')+1:]
+		
+		addition += bufferLine
+
+	if addition.find('abs(')>=0:
+		err.setChangedLine(numOfLineToChange)
+		err.setChangedFile(fileToChange)
+		if (addition, err.getChangedLine(), err.getChangedFile()) not in history:
+				err.setBug(lineToChange)
+				err.setBugFix(addition)	
+				history.append((addition, err.getChangedLine(), err.getChangedFile()))

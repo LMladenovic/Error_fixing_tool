@@ -10,7 +10,9 @@ def initialise(varType):
 		'double': '0',
 		'float': '0',
 		'boolean': 'False',
-		'char': '\'\\0\''
+		'char': '\'\\0\'',
+		'short': '0',
+		'long': '0'
 	    }
 	
 	if varType in initialisator:

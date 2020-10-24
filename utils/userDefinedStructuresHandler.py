@@ -77,13 +77,15 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 		f=open(file, 'r')
 		data = f.read()
 		f.close()
-
+ 
 		m = re.search('typedef struct [a-zA-z0-9_-\{]+[ ]*([a-zA-z0-9\*\t \n;,_-]+)[ ]*[\}]+[ ]*' + varType.strip() + '[ ]*;' , data)
+		if not m:
+			m = re.search('typedef struct [ \t]*' + varType.strip() + '[\t {]+[ ]*([a-zA-z0-9\*\t \n;,_-]+)[ ]*[\}]+[ ]*;' , data)
 		if m:
 			structData = m.group(1).split('\n')
 			for elem in structData:
 				elem = elem.strip()
-			break
+				break
 	
 	addition = ''
 	for elem in structData:
