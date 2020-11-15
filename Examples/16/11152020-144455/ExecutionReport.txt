@@ -1,0 +1,39 @@
+#####  Based on Valgrind output:  #####
+
+Syscall param write(buf) points to uninitialised byte(s)
+at 0x4978024: write (write.c:26)
+by 0x10918E: main (16.c:7)
+Address 0x4a59040 is 0 bytes inside a block of size 10 alloc'd
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109166: main (16.c:5)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109166: main (16.c:5)
+
+#####  Koronka made following changes in 16.c  #####
+
+Changed 5. line 
+  char* arr  = malloc(10);
+ with 
+  char* arr  = calloc( sizeof(char), 10);
+
+
+#####  Based on Valgrind output:  #####
+
+Syscall param exit_group(status) contains uninitialised byte(s)
+at 0x494C926: _Exit (_exit.c:31)
+by 0x48B23A9: __run_exit_handlers (exit.c:132)
+by 0x48B23D9: exit (exit.c:139)
+by 0x1091B0: main (16.c:8)
+Uninitialised value was created by a heap allocation
+at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x109189: main (16.c:6)
+
+#####  Koronka made following changes in 16.c  #####
+
+Changed 8. line 
+  exit(arr2[0]);
+ with 
+  exit(0);
+
+

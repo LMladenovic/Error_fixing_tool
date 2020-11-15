@@ -2,7 +2,7 @@
 
 ### Opis projekta
 
-Alat koji automatski otkriva greske u kodu napisanom u C-u koristeci alat Valgrind, a zatim ih ispravlja ukoliko je to u njegovoj moci. Razvijan pod Linux okruzenjem. Alat je nazvan Koronka, zbog trenutne situacije u kojoj se svi nalazimo. Osnovna svrha alata je demonstracija rada alata Valgrind, kao i tumacenje izvestaja o greskama koje Valgrind daje i njihovo uspesno otklanjanje.
+Alat koji automatski otkriva greske u kodu napisanom u C-u koristeci alat Valgrind, a zatim ih ispravlja ukoliko je to u njegovoj moci. Razvijan pod Linux okruzenjem. Alat je nazvan Koronka, zbog trenutne situacije u kojoj se svi nalazimo. Osnovna svrha alata je demonstracija rada alata Valgrind, kao i automatsko tumacenje izvestaja o greskama koje Valgrind daje i njihovo uspesno otklanjanje.
 
 
 [Link do projekta](https://github.com/MATF-Software-Verification/05_error_fixing_tool.git) u okviru MATF Software verification organizacije po cijoj je ideji nastavljen razvoj i nastao alat kakav danas i jeste. 
@@ -28,4 +28,4 @@ Alat se pokrece komandom
 [files = [list of files]] - dodatni fajlovi potrebni programu (npr. .h fajlovi)  
 [structures=[list of user defined structures]] - korisnicki definisane strukture (npr. Cvor stabla)  
 
-Alat ce u okviru direktorijuma u kom se nalazi kreirati folder po modelu datumPokretanja-VremePokretanja, u njega kopirati gore navedeni fajl kao argument nad kojim ce vrsiti ispravku, njih menjati, i na kraju generisati ExecutionReport sa izvestajem sta je i na koji nacin promenjeno. Na taj nacin originalni fajl ostaje nepromenjen, a rezultat rada alata i izmenjeni fajl se nalazi u pomenutom folderu. 
+Alat ce u okviru direktorijuma u kom se nalazi kreirati folder po modelu datumPokretanja-VremePokretanja i u njega kopirati gore navedeni fajl kao argument nad kojim ce vrsiti ispravku, kao i fajlove navedene u okviru argumenta files. Nad njima ce alat vrsiti odgovarajuce promene u skladu sa pronadjenim greskama i njihovim ispravkama, i na kraju generisati ExecutionReport sa izvestajem sta je i na koji nacin promenjeno. Na taj nacin originalni fajlovi ostaju nepromenjeni, a rezultat rada alata i izmenjeni fajlovi se nalaze u pomenutom folderu. 

@@ -5,6 +5,7 @@ from invalidFreeFix import *
 import re
 from invalidReadOrWriteFix import *
 from fishyArgumentFix import *
+from sysCallErrorFix import *
 
 errorType = [
 	'Conditional jump or move depends on uninitialised value(s)',
@@ -12,7 +13,9 @@ errorType = [
 	'Invalid free() / delete / delete[] / realloc()',
 	'Invalid read of size ',
 	'Invalid write of size ',
-	' has a fishy (possibly negative) value:'
+	' has a fishy (possibly negative) value:',
+	'Syscall param write(buf) points to uninitialised byte(s)',
+	'Syscall param exit_group(status) contains uninitialised byte(s)'
 ]
 
 errorReason = [
@@ -145,6 +148,13 @@ def fix(err, files, structures, history):
 		err.setBug(data[err.getChangedLine()-1])
 		if (err.getBugFix(), err.getChangedLine(), err.getChangedFile()) not in history:
 			history.append((err.getBugFix(), err.getChangedLine(), err.getChangedFile()))
+
+	# systemCall Errors Fix
+	if err.getErrorType().find('Syscall param write(buf) points to uninitialised byte(s)')>=0:
+		sysCallWriteFix(err, files, history)
+
+	if err.getErrorType().find('Syscall param exit_group(status) contains uninitialised byte(s)')>=0:
+		sysCallExitFix(err, files, history)
 
 
 
