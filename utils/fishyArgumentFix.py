@@ -4,8 +4,6 @@ def fishyArgumentFix(err, files, history):
     numOfLineToChange = err.getProblemLines()[0][1]
     fileToChange = err.getProblemLines()[0][0]
     addition=''
-    print(numOfLineToChange)
-    print(fileToChange)
 
     f = open(fileToChange, "r")
     data = f.readlines()

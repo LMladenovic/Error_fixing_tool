@@ -1,0 +1,16 @@
+#####  Based on Valgrind output:  #####
+
+Invalid read of size 4
+at 0x109168: main (18.c:7)
+Address 0x4a5904c is 4 bytes after a block of size 8 alloc'd
+at 0x483AB35: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10915B: main (18.c:5)
+
+#####  Koronka made following changes in 18.c  #####
+
+Changed 5. line 
+	int *t = calloc(sizeof(int), 2);
+ with 
+	int *t = calloc(sizeof(int), 2 + 2);
+
+

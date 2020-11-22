@@ -88,6 +88,7 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 				break
 	
 	addition = ''
+	addedIndexes = 0
 	for elem in structData:
 		if elem:
 			if elem.find('[')>0:
@@ -105,7 +106,7 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 						newExpressionData.append(\
 						temporaryData[temporaryData.find('[')+1:temporaryData.find(']')])	
 						temporaryData = temporaryData[temporaryData.find(']')+1:]
-					addition += initialiseUsingLoopForUserStructures(mainVariable, varType, variable, temporaryLen, newExpressionData, inl, history)
+					addition += initialiseUsingLoopForUserStructures(mainVariable, varType, variable, temporaryLen, newExpressionData, inl, history, addedIndexes)
 			else:
 				# simble variable
 				m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+(.+).*;', elem)
@@ -128,10 +129,11 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 	return addition
 
 # mainVariable is UDS variable, and variable is part of user defined structure element
-def initialiseUsingLoopForUserStructures(mainVariable, varType, variable, length, expressionData, inl, history):
+def initialiseUsingLoopForUserStructures(mainVariable, varType, variable, length, expressionData, inl, history, addedIndexes):
 	count = 0
 	addition = inl
 	index = []
+	addedIndexes+=1
 	
 	for line in history:
 		searchLine = line[0]
@@ -142,8 +144,8 @@ def initialiseUsingLoopForUserStructures(mainVariable, varType, variable, length
 
 	for i in range(0,length):
 		if count:
-			addition += 'int __index' + str(count+1) + '__;\n' + inl
-			index.append( '__index' + str(count+1) + '__')
+			addition += 'int __index' + str(count+1+addedIndexes) + '__;\n' + inl
+			index.append( '__index' + str(count+1+addedIndexes) + '__')
 			count +=1
 		else:
 			addition += 'int '+ '__index__' +';\n' + inl

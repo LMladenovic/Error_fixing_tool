@@ -29,20 +29,30 @@ def invalidReadOrWriteFix(err, files, history):
 
 		if elemSize != '' and bytesAfter != '':
 			size = str(int((bytesAfter+elemSize)/elemSize)) 
+			n = re.search('(malloc|calloc|realloc)', lineToChange)
+			if n.group(1)=='malloc':
+				m = re.search('\(([a-zA-z0-9]*[ ]*\*[ ]*)*[ ]*sizeof[ ]*\(([a-zA-z0-9\* ]*)\)[ ]*(\*[ ]*[a-zA-z0-9]*)*([ ]*[\)\+])'\
+						, lineToChange)
 
-			m = re.search('\(([a-zA-z0-9]*[ ]*\*[ ]*)*[ ]*sizeof[ ]*\(([a-zA-z0-9\* ]*)\)[ ]*(\*[ ]*[a-zA-z0-9]*)*([ ]*[\)\+])'\
-					, lineToChange)
+				if m:
+					if m.group(1) and m.group(2):
+						addition =  '(' + m.group(1) + 'sizeof(' + m.group(2) + ')' + \
+						' + ' + size + '*sizeof(' + m.group(2) + ')' + m.group(4)
+		
+					if m.group(2) and m.group(3):
+						addition = '(' + 'sizeof(' + m.group(2) + ')' + m.group(3) + \
+							' +' + size + '*sizeof(' + m.group(2) + ')' + m.group(4)
 
-			if m:
-				if m.group(1) and m.group(2):
-					addition =  '(' + m.group(1) + 'sizeof(' + m.group(2) + ')' + \
-					' + ' + size + '*sizeof(' + m.group(2) + ')' + m.group(4)
-	
-				if m.group(2) and m.group(3):
-					addition = '(' + 'sizeof(' + m.group(2) + ')' + m.group(3) + \
-						' +' + size + '*sizeof(' + m.group(2) + ')' + m.group(4)
+					addition = re.sub(getRegEx(), addition, lineToChange)
 
-				addition = re.sub(getRegEx(), addition, lineToChange)
+			if n.group(1)=='realloc':
+				addition = lineToChange[0:lineToChange.find(',')+1]
+				m = re.search('sizeof[ ]*\(([a-zA-z0-9\* ]*)\)', lineToChange)
+				addition += ' ' + size + '*sizeof(' + m.group(1) + ') + ' + lineToChange[lineToChange.find(',')+1:]
+			
+			if n.group(1)=='calloc':
+				addition = lineToChange[0:lineToChange.find(',')+1]
+				addition+= ' ' + size + ' +' + lineToChange[lineToChange.find(',')+1:]
 
 			if (addition, err.getChangedLine(), err.getChangedFile()) not in history:
 				

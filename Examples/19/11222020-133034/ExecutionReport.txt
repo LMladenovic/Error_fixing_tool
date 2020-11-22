@@ -1,0 +1,52 @@
+#####  Based on Valgrind output:  #####
+
+Argument 'size' of function realloc has a fishy (possibly negative) value: -8
+at 0x483AD4B: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10917D: main (19.c:6)
+
+#####  Koronka made following changes in 19.c  #####
+
+Changed 6. line 
+	t = realloc( t, -2*sizeof(int));
+ with 
+	t = realloc( t,abs( -2*sizeof(int)));
+
+
+#####  Based on Valgrind output:  #####
+
+Invalid read of size 4
+at 0x109188: main (19.c:7)
+Address 0x4a5909c is 4 bytes after a block of size 8 alloc'd
+at 0x483AD4B: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10917B: main (19.c:6)
+
+#####  Koronka made following changes in 19.c  #####
+
+Changed 6. line 
+	t = realloc( t,abs( -2*sizeof(int)));
+ with 
+	t = realloc( t, 2*sizeof(int) + abs( -2*sizeof(int)));
+
+
+#####  Based on Valgrind output:  #####
+
+Conditional jump or move depends on uninitialised value(s)
+at 0x48E2E40: __vfprintf_internal (vfprintf-internal.c:1644)
+by 0x48CD8D7: printf (printf.c:33)
+by 0x10919C: main (19.c:7)
+Uninitialised value was created by a heap allocation
+at 0x483AD4B: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+by 0x10917B: main (19.c:6)
+
+#####  Koronka made following changes in 19.c  #####
+
+Changed 6. line 
+	t = realloc( t, 2*sizeof(int) + abs( -2*sizeof(int)));
+ with 
+	t = realloc( t, 2*sizeof(int) + abs( -2*sizeof(int)));
+		int __index__;
+	for( __index__ = 0; __index__ <  2*1 + abs( -2*1); __index__ ++)
+		t[__index__] = 0;
+
+
+

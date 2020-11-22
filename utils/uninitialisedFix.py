@@ -123,7 +123,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 			break
 
 		m = re.search('(malloc|calloc|realloc)(.+);', lineCausedProblems)
-		if m and not addition:
+		if m and not addition and m.group(1)=='malloc':
 			expressionData = m.group(2).replace('(', '', 1)[::-1].replace(')', '', 1)[::-1].strip()
 			expressionData = re.sub('sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)', '1' , expressionData)
 			start = lineCausedProblems.find('*')
@@ -132,6 +132,20 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 			inl = lineCausedProblems[0:start - len(varType) - 1]
 			variable = lineCausedProblems[lineCausedProblems.find('*') + 1 : lineCausedProblems.find('=')]
 			
+			if initialise(varType)!= 'Invalid':
+				if not re.findall('[a-zA-Z]+', expressionData) and int(eval(expressionData)) == 1:
+					addition = lineCausedProblems[start:end] + " = " + initialise(varType) + ';'
+				else:
+					addition = initialiseUsingLoop(varType, variable, 1, [expressionData], inl, history)
+		if m and not addition and m.group(1)=='realloc':
+			expressionData = m.group(2)[m.group(2).find(',')+1:m.group(2).rfind(')')]
+			varType = expressionData[expressionData.find('sizeof'):]
+			varType = varType[varType.find('(')+1: varType.find(')')].strip()
+			char = re.search('([a-zA-z])', lineCausedProblems).group(1)
+			inl = lineCausedProblems[0:lineCausedProblems.find(char)]
+			expressionData = re.sub('sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)', '1' , expressionData)
+			variable = m.group(2)[m.group(2).find('(')+1:m.group(2).find(',')].strip()
+			variable = re.sub('\*', '' , variable)
 			if initialise(varType)!= 'Invalid':
 				if not re.findall('[a-zA-Z]+', expressionData) and int(eval(expressionData)) == 1:
 					addition = lineCausedProblems[start:end] + " = " + initialise(varType) + ';'
@@ -147,7 +161,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 		
 		# if statement 
 		m = re.search('(malloc|calloc|realloc)(.+)', lineCausedProblems)
-		if m and not addition:
+		if m and not addition and m.group(1)=='malloc':
 
 			# here we get varType, variable, expressionData and inl
 			start = lineCausedProblems.find('sizeof(') + 7
