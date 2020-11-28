@@ -64,7 +64,6 @@ class ErrorInfo:
 		for reason in self.errorReason:
 			if reason.find(newReason) >= 0:
 				return True
-				break
 
 		return False
 

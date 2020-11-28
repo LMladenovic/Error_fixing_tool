@@ -30,23 +30,22 @@ Changed 6. line
 	int *t = malloc(4*sizeof(int) + 1*sizeof(int));
  with 
 	int *t = malloc(4*sizeof(int) + 1*sizeof(int));
-		int __index__;
+	int __index__;
 	for( __index__ = 0; __index__ < 5; __index__ ++)
 		t[__index__] = 0;
-
 
 
 #####  Based on Valgrind output:  #####
 
 Invalid read of size 4
-at 0x1091BD: main (14.c:13)
+at 0x1091BD: main (14.c:12)
 Address 0x4a5903c is 4 bytes before a block of size 20 alloc'd
 at 0x483874F: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
 by 0x109166: main (14.c:6)
 
 #####  Koronka made following changes in 14.c  #####
 
-Changed 13. line 
+Changed 12. line 
 	printf("Left side overdraft: %d\n", t[4-5]);
  with 
 	printf("Left side overdraft: %d\n", t[abs(4-5)]);

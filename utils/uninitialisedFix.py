@@ -156,7 +156,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 			history.append((addition, err.getChangedLine(), err.getChangedFile()))		
 			# set what should be changed
 			err.setBug(lineCausedProblems)
-			err.setBugFix(lineCausedProblems + lineCausedProblems.replace(lineCausedProblems.strip() , addition) )
+			err.setBugFix(lineCausedProblems + addition )
 			break
 		
 		# if statement 
