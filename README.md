@@ -22,7 +22,7 @@ Pokrenuti komandu
 Pozicionirati se u folderu gde se nalazi glavni fajl <i>koronka.py</i>, kao i pomocni fajlovi u okviru foldera <i>utils</i>.
 
 Alat se pokrece komandom
-<pre> python koronka.py [files=[list of files]] [structures=[list of user defined structures]] [path to c file] [other arguments] </pre>
+<pre> python3 koronka.py [files=[list of files]] [structures=[list of user defined structures]] [path to c file] [other arguments] </pre>
 
 [other arguments] - argumenti koji su potrebni C programu kao argumenti komandne linije ( u trenutnoj verziji projekta)  
 [files = [list of files]] - dodatni fajlovi potrebni programu (npr. .h fajlovi)  
