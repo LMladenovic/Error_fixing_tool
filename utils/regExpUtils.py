@@ -6,9 +6,6 @@ def isBeginOfCodeBlock():
 def isSimplePointerDefinition():
     return '([ \t]*)([a-zA-Z_-]+)([ ]*[\*][ ]*)+([a-zA-Z_-]+)[^;]*;'
 
-    ## 110. linija uninitialisedFix
-     #      '([ \t]*)([a-zA-Z_-]+)[ ]*[\*]+[ ]*([a-zA-z_0-9]+)[ ]*;'
-
 # used to match line containing definition of variable
 def isVariableDefinitionLine():
     return '([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z_-]+)[^;]*;'
@@ -33,12 +30,6 @@ def simpleLineWithDinamicMemoryAlocationDefinition():
 def sizeArgumentForDinamicMemoryAlocationFunctions():
     return 'sizeof[ ]*\([ ]*([a-zA-Z\* _-]+)[ ]*\)'
          
-          # ranije fukncija
-          # 'sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)'
-        # invalidRead 47 linija
-       #     'sizeof[ ]*\(([a-zA-z0-9\* ]*)\)'
-          
-
 # used to match line containing definition of variable with dinamic alocation function used, inside condition block
 def complexLineWithDinamicMemoryAlocationDefinition():
     return '([ \t]*).*\([ ]*(.*)[ ]*=[ ]*(malloc|calloc|realloc)[ ]*\((.*)NULL'
