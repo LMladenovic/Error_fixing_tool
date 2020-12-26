@@ -1,5 +1,6 @@
 import re
 from initialisationUtils import *
+from regExpUtils import *
 
 def initialiseUserStructureUsingLoop(varType, variable, length, expressionData, inl, files, structures, history ):
 	count = 0
@@ -78,9 +79,9 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 		data = f.read()
 		f.close()
  
-		m = re.search('typedef struct [a-zA-z0-9_-\{]+[ ]*([a-zA-z0-9\*\t \n;,_-]+)[ ]*[\}]+[ ]*' + varType.strip() + '[ ]*;' , data)
+		m = re.search(getUserDefinedStructureWithPredefinedName() , data)
 		if not m:
-			m = re.search('typedef struct [ \t]*' + varType.strip() + '[\t {]+[ ]*([a-zA-z0-9\*\t \n;,_-]+)[ ]*[\}]+[ ]*;' , data)
+			m = re.search(getUserDefinedStructure(), data)
 		if m:
 			structData = m.group(1).split('\n')
 			for elem in structData:
@@ -93,7 +94,7 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 		if elem:
 			if elem.find('[')>0:
 				# array
-				m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z0-9_-]+)\[(.+)\].*;', elem)
+				m = re.search(getMultidimensionalVariableDefinitionData(), elem)
 				if m:
 					varType = m.group(2)
 					variable = m.group(3)
@@ -109,7 +110,7 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 					addition += initialiseUsingLoopForUserStructures(mainVariable, varType, variable, temporaryLen, newExpressionData, inl, history, addedIndexes)
 			else:
 				# simble variable
-				m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+(.+).*;', elem)
+				m = re.search(getOneDimensionalVariableDefinitionData(), elem)
 				if m:
 					if elem[elem.find(m.group(2))::].find('=')<0:
 						varType = m.group(2)

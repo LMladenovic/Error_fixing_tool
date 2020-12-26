@@ -1,7 +1,5 @@
 import re
-
-def getRegEx():
-	return '\(([a-zA-z0-9]*[ ]*\*[ ]*)*[ ]*sizeof[ ]*\(([a-zA-z0-9\* ]*)\)[ ]*(\*[ ]*[a-zA-z0-9]*)*[ ]*[\)\+]'
+from regExpUtils import *
 
 def invalidReadOrWriteFix(err, files, history):
 
@@ -15,7 +13,7 @@ def invalidReadOrWriteFix(err, files, history):
 		addition = ''
 		
 		for elem in err.getProblemLines():
-			if re.findall('.+(malloc|calloc|realloc)+.*', data[elem[1]-1]) and elem[0]==file:
+			if re.findall(lineContainingDinamicAlocationFunction(), data[elem[1]-1]) and elem[0]==file:
 				lineToChange = data[elem[1]-1]
 				err.setChangedLine(elem[1])
 				err.setChangedFile(file)
@@ -23,16 +21,15 @@ def invalidReadOrWriteFix(err, files, history):
 				break
 
 		for line in err.getErrorReason():
-			if re.findall('Address [0-9a-zA-Z]+ is \d+ bytes after a block of size \d+ alloc\'d', line):
+			if re.findall(getInformationAboutExpansion(), line):
 				bytesAfter = int(re.findall('\d+', line.split('is')[1])[0])
 				break
 
 		if elemSize != '' and bytesAfter != '':
 			size = str(int((bytesAfter+elemSize)/elemSize)) 
-			n = re.search('(malloc|calloc|realloc)', lineToChange)
+			n = re.search(lineContainingDinamicAlocationFunction(), lineToChange)
 			if n.group(1)=='malloc':
-				m = re.search('\(([a-zA-z0-9]*[ ]*\*[ ]*)*[ ]*sizeof[ ]*\(([a-zA-z0-9\* ]*)\)[ ]*(\*[ ]*[a-zA-z0-9]*)*([ ]*[\)\+])'\
-						, lineToChange)
+				m = re.search(getDataFromLineAboutMemoryAlocation(), lineToChange)
 
 				if m:
 					if m.group(1) and m.group(2):
@@ -43,11 +40,11 @@ def invalidReadOrWriteFix(err, files, history):
 						addition = '(' + 'sizeof(' + m.group(2) + ')' + m.group(3) + \
 							' +' + size + '*sizeof(' + m.group(2) + ')' + m.group(4)
 
-					addition = re.sub(getRegEx(), addition, lineToChange)
+					addition = re.sub(changeMemoryAlocationSizeRelatedData(), addition, lineToChange)
 
 			if n.group(1)=='realloc':
 				addition = lineToChange[0:lineToChange.find(',')+1]
-				m = re.search('sizeof[ ]*\(([a-zA-z0-9\* ]*)\)', lineToChange)
+				m = re.search(sizeArgumentForDinamicMemoryAlocationFunctions(), lineToChange)
 				addition += ' ' + size + '*sizeof(' + m.group(1) + ') + ' + lineToChange[lineToChange.find(',')+1:]
 			
 			if n.group(1)=='calloc':

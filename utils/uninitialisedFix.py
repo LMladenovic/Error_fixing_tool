@@ -1,4 +1,5 @@
 import re
+from regExpUtils import *
 from invalidReadOrWriteFix import *
 from userDefinedStructuresHandler import *
 from initialisationUtils import *
@@ -19,10 +20,10 @@ def uninitialisedStaticVariable(err, files, structures, history):
 	
 	if not indicator:
 		for i in range(err.getProblemLines()[0][1], len(data)):
-			m = re.search('([ \t]*)(([a-zA-Z_-]+))[ ]+.*{',data[i])
+			m = re.search(isBeginOfCodeBlock(),data[i])
 			if m:
 				break
-			m= re.search('([ \t]*)([a-zA-Z_-]+)([ ]*[\*][ ]*)+([a-zA-Z_-]+).*;',data[i])
+			m= re.search(isSimplePointerDefinition(),data[i])
 			if m and data[i].find('=')<0:
 				addition = data[i].replace(';' , '= NULL;')
 				err.setBugFix(addition)
@@ -30,14 +31,14 @@ def uninitialisedStaticVariable(err, files, structures, history):
 				err.setChangedLine(i+1)
 				err.setBug(data[i])
 				break
-			m= re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z_-]+).*;',data[i])
+			m= re.search(isVariableDefinitionLine(),data[i])
 			if m:
 				if data[i+1].find('__index__')>=0:
 					continue
 				elif data[i+1].find(m.group(3)+ '.')>=0:
 					continue
 				elif data[i].find('[')>0:
-					m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+([a-zA-Z0-9_-]+)\[(.+)\].*;', data[i])
+					m = re.search(getMultidimensionalVariableDefinitionData(), data[i])
 					if m:
 						varType = m.group(2)
 						variable = m.group(3)
@@ -58,7 +59,7 @@ def uninitialisedStaticVariable(err, files, structures, history):
 							addition = initialiseUsingLoop(varType, variable, temporaryLen, newExpressionData, inl, history)
 						err.setBugFix(data[i] + addition)
 				else:
-					m = re.search('([ \t]*)([a-zA-Z_-]+)[ ]+(.+).*;', data[i])
+					m = re.search(getOneDimensionalVariableDefinitionData(), data[i])
 					if m:
 						if data[i][data[i].find(m.group(2))::].find('=')<0:
 							varType = m.group(2)
@@ -98,7 +99,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 
 		for elem in err.getProblemLines():
 			# case where we have to initialise dinamicaly allocated memory
-			m = re.search('(malloc|calloc|realloc)(.+)', data[elem[1]-1])
+			m = re.search(lineContainingDinamicAlocationFunction(), data[elem[1]-1])
 			if m:
 				err.setChangedFile(file)
 				lineCausedProblems = data[elem[1] - 1]
@@ -106,7 +107,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 				break
 			
 			# case where user just deffined variable, and haven't allocated memory so we have to initialise it with NULL
-			m = re.search('[ ]*([a-zA-Z_-]+)[ ]*[\*]+[ ]*([a-zA-z_0-9]+)[ ]*;', data[elem[1]-1])
+			m = re.search(isSimplePointerDefinition(), data[elem[1]-1])
 			if m:
 				err.setChangedFile(file)
 				lineCausedProblems = data[elem[1] - 1]
@@ -122,10 +123,10 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 			err.setBugFix(addition)
 			break
 
-		m = re.search('(malloc|calloc|realloc)(.+);', lineCausedProblems)
+		m = re.search(simpleLineWithDinamicMemoryAlocationDefinition(), lineCausedProblems)
 		if m and not addition and m.group(1)=='malloc':
 			expressionData = m.group(2).replace('(', '', 1)[::-1].replace(')', '', 1)[::-1].strip()
-			expressionData = re.sub('sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)', '1' , expressionData)
+			expressionData = re.sub(sizeArgumentForDinamicMemoryAlocationFunctions(), '1' , expressionData)
 			start = lineCausedProblems.find('*')
 			end = lineCausedProblems.find('=')
 			varType = lineCausedProblems[0:start].strip()
@@ -143,7 +144,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 			varType = varType[varType.find('(')+1: varType.find(')')].strip()
 			char = re.search('([a-zA-z])', lineCausedProblems).group(1)
 			inl = lineCausedProblems[0:lineCausedProblems.find(char)]
-			expressionData = re.sub('sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)', '1' , expressionData)
+			expressionData = re.sub(sizeArgumentForDinamicMemoryAlocationFunctions(), '1' , expressionData)
 			variable = m.group(2)[m.group(2).find('(')+1:m.group(2).find(',')].strip()
 			variable = re.sub('\*', '' , variable)
 			if initialise(varType)!= 'Invalid':
@@ -160,18 +161,18 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 			break
 		
 		# if statement 
-		m = re.search('(malloc|calloc|realloc)(.+)', lineCausedProblems)
+		m = re.search(lineContainingDinamicAlocationFunction(), lineCausedProblems)
 		if m and not addition and m.group(1)=='malloc':
 
 			# here we get varType, variable, expressionData and inl
 			start = lineCausedProblems.find('sizeof(') + 7
 			end = lineCausedProblems[start:].find(')')
 			varType = lineCausedProblems[start:][0:end]
-			n = re.search('([ \t]*).*\([ ]*(.*)[ ]*=[ ]*(malloc|calloc|realloc)[ ]*\((.*)NULL', lineCausedProblems)
+			n = re.search(complexLineWithDinamicMemoryAlocationDefinition(), lineCausedProblems)
 			if n:
 				inl = n.group(1)
 				variable = n.group(2)
-				expressionData = re.sub('sizeof[ ]*\([ ]*([a-zA-Z_-]+)[ ]*\)', '1' , n.group(4))
+				expressionData = re.sub(sizeArgumentForDinamicMemoryAlocationFunctions(), '1' , n.group(4))
 				if expressionData.find(')')>=0:
 					expressionData = expressionData[0:expressionData.find(')')]	
  

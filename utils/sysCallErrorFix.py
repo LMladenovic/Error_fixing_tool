@@ -1,4 +1,5 @@
 import re
+from regExpUtils import *
 
 def sysCallWriteFix(err,files,history):
     fileToChange = err.getProblemLines()[0][0]
@@ -14,7 +15,7 @@ def sysCallWriteFix(err,files,history):
     lineToChange = data[numOfLineToChange-1]
     addition = lineToChange[0:lineToChange.find('=')+1]
 
-    m = re.search('[ \t]*([a-zA-z_*]+)[ \t]+([a-zA-z0-9_]+)[ \t]+=[ \t]+(malloc)(.+)', lineToChange)
+    m = re.search(getInformationAboutDataCausedSysCallError(), lineToChange)
     if m:
         varType = m.group(1)[0:m.group(1).find('*')]
         allocatedSize = m.group(4)[m.group(4).find('(')+1:m.group(4).rfind(')')]
