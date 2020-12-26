@@ -2,8 +2,8 @@ def getHelpText():
 	print('Koronka - error fixing tool')
 	print('Run program by typing:')
 	print('') 
-	print( 'python koronka.py [files=[list of files]] [structures=[list of user defined structures]] \
-[c file|path to c file] [other arguments]')
+	print( 'python3 koronka.py [files=[list of files]] [structures=[list of user defined structures]] \
+[path to c file] [other arguments]')
 	print('') 
 	print('[other arguments] - C program command line arguments')
 	print('[files = [list of files]] - additional files required by the program (e.g .h files)')
