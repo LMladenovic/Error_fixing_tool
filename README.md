@@ -2,7 +2,7 @@
 
 ### Opis projekta
 
-Alat koji automatski otkriva greske u kodu napisanom u C-u koristeci alat Valgrind, a zatim ih ispravlja ukoliko je to u njegovoj moci. Razvijan pod Linux okruzenjem. Alat je nazvan Koronka, zbog trenutne situacije u kojoj se svi nalazimo. Osnovna svrha alata je demonstracija rada alata Valgrind, kao i automatsko tumacenje izvestaja o greskama koje Valgrind daje i njihovo uspesno otklanjanje.
+Alat koji automatski otkriva greske u kodu napisanom u C-u koristeci alat Valgrind, a zatim ih ispravlja ukoliko je to u njegovoj moci. Razvijan pod Linux okruzenjem. Alat je nazvan Koronka, jer je razvijan u vreme pandemije Korona virusa, a sa ciljem da bar nesto dobro nastane sa pomenutim imenom. Osnovna svrha alata je demonstracija rada alata Valgrind, kao i automatsko tumacenje izvestaja o greskama koje Valgrind daje i njihovo uspesno otklanjanje.
 
 
 [Link do projekta](https://github.com/MATF-Software-Verification/05_error_fixing_tool.git) u okviru MATF Software verification organizacije po cijoj je ideji nastavljen razvoj i nastao alat kakav danas i jeste. 
@@ -22,7 +22,7 @@ Pokrenuti komandu
 Pozicionirati se u folderu gde se nalazi glavni fajl <i>koronka.py</i>, kao i pomocni fajlovi u okviru foldera <i>utils</i>.
 
 Alat se pokrece komandom
-<pre> python koronka.py [files=[list of files]] [structures=[list of user defined structures]] [c file|path to c file] [other arguments] </pre>
+<pre> python koronka.py [files=[list of files]] [structures=[list of user defined structures]] [path to c file] [other arguments] </pre>
 
 [other arguments] - argumenti koji su potrebni C programu kao argumenti komandne linije ( u trenutnoj verziji projekta)  
 [files = [list of files]] - dodatni fajlovi potrebni programu (npr. .h fajlovi)  

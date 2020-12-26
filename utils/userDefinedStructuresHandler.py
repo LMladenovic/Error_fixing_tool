@@ -79,9 +79,9 @@ def initialiseStructure(varType, mainVariable, inl, files, structures, history):
 		data = f.read()
 		f.close()
  
-		m = re.search(getUserDefinedStructureWithPredefinedName() , data)
+		m = re.search(getUserDefinedStructureWithPredefinedName(varType) , data)
 		if not m:
-			m = re.search(getUserDefinedStructure(), data)
+			m = re.search(getUserDefinedStructure(varType), data)
 		if m:
 			structData = m.group(1).split('\n')
 			for elem in structData:

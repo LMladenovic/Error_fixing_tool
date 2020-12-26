@@ -135,7 +135,7 @@ def uninitialisedDinamicllyAllocatedVariable(err, files, structures, history):
 			
 			if initialise(varType)!= 'Invalid':
 				if not re.findall('[a-zA-Z]+', expressionData) and int(eval(expressionData)) == 1:
-					addition = lineCausedProblems[start:end] + " = " + initialise(varType) + ';'
+					addition = inl + lineCausedProblems[start:end] + " = " + initialise(varType) + ';'
 				else:
 					addition = initialiseUsingLoop(varType, variable, 1, [expressionData], inl, history)
 		if m and not addition and m.group(1)=='realloc':
