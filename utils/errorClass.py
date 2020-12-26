@@ -2,7 +2,7 @@ class ErrorInfo:
 
 	# Initialisation with errorType
 	def __init__(self, errorType, valgrindOutput, files):
-        self.errorType = errorType
+		self.errorType = errorType
 		self.valgrindOutput = valgrindOutput
 		self.files = files
 		self.changedFile = ''
