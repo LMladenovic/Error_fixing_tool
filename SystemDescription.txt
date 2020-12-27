@@ -19,7 +19,7 @@ Valgrind distribucija trenutno broji sledeće alate:
 	- eksperimentali alat za podrsku razvoja novih arhitektura racunara (BBV)
 
 Rad se zasniva na Valgrind-ovom alatu Memcheck. Imlementirane su funkcionalnosti ispravljanja nekih od 
-bagova na koje Memcheck ukazuje. Trenutna verzija alata ispravlja sledece greske:
+gresaka na koje Memcheck ukazuje. Trenutna verzija alata ispravlja sledece greske:
 	- nedozvoljeno citanje/pisanje u memoriju
 	- koriscenje neinicijalizovanih vrednosti
 	- nedopusteno oslobadjanje memorije
@@ -34,8 +34,8 @@ datumPokretanja-vremePokretanja i nad njima vrsi dalje promene. Prvo se kompajli
 alat Valgrind, i parsira se njegov izlaz. Ukoliko postoji greska koju alat moze da ispravi, on je ispravlja,
 dodaje u ExecutionReport na osnovu cega i sta je uradjeno, i menja sta se treba promeniti u kodu programa. 
 Nakon otklonjene greske u tekucoj iteraciji, pokrece se nova iteracija kompilacije, a zatim pokretanja 
-Valgrinada i daljeg pokusavanja otklanjanja gresaka. Ukoliko program nema bagova, ili alat ne moze da ispravi
-nijedan bag na koji je Valgrind ukazao, program se prekida.
+Valgrinada i daljeg pokusavanja otklanjanja gresaka. Ukoliko program nema gresaka, ili alat ne moze da ispravi
+nijednu gresku na koju je Valgrind ukazao, program se prekida.
 
 	 _______________________________________________________________________
 	|									|
@@ -44,7 +44,7 @@ nijedan bag na koji je Valgrind ukazao, program se prekida.
 	|	 							POKRENI VALGRIND
 	|									|
 	|							PARSIRAJ IZLAZ (parseOutput.py)
-	|						(izlaz: lista bagova na koje Valgrind ukazuje)
+	|						(izlaz: lista gresaka na koje Valgrind ukazuje)
 	|									|
 	|							{uslov: lista gresaka nije prazna}
 	|					 _______________________________|_______________________

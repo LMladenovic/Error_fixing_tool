@@ -19,7 +19,7 @@ Pre upotrebe alata potrebno je instalirati:
 Pokrenuti komandu 
 <pre> git clone https://github.com/LMladenovic/Error_fixing_tool.git </pre>
 
-Pozicionirati se u folderu gde se nalazi glavni fajl <i>koronka.py</i>, kao i pomocni fajlovi u okviru foldera <i>utils</i>.
+Pozicionirati se u direktorijum u kom se nalazi glavni fajl <i>koronka.py</i>, kao i pomocni fajlovi u okviru direktorijuma <i>utils</i>.
 
 Alat se pokrece komandom
 <pre> python3 koronka.py [files=[list of files]] [structures=[list of user defined structures]] [path to c file] [other arguments] </pre>
@@ -28,4 +28,4 @@ Alat se pokrece komandom
 [files = [list of files]] - dodatni fajlovi potrebni programu (npr. .h fajlovi)  
 [structures=[list of user defined structures]] - korisnicki definisane strukture (npr. Cvor stabla)  
 
-Alat ce u okviru direktorijuma u kom se nalazi kreirati folder po modelu datumPokretanja-VremePokretanja i u njega kopirati gore navedeni fajl kao argument nad kojim ce vrsiti ispravku, kao i fajlove navedene u okviru argumenta files. Nad njima ce alat vrsiti odgovarajuce promene u skladu sa pronadjenim greskama i njihovim ispravkama, i na kraju generisati ExecutionReport sa izvestajem sta je i na koji nacin promenjeno. Na taj nacin originalni fajlovi ostaju nepromenjeni, a rezultat rada alata i izmenjeni fajlovi se nalaze u pomenutom folderu. 
+Alat ce u okviru direktorijuma u kom se nalazi kreirati direktorijum po modelu datumPokretanja-VremePokretanja i u njega kopirati gore navedeni fajl kao argument nad kojim ce vrsiti ispravku, kao i fajlove navedene u okviru argumenta files. Nad njima ce alat vrsiti odgovarajuce promene u skladu sa pronadjenim greskama i njihovim ispravkama, i na kraju generisati ExecutionReport sa izvestajem sta je i na koji nacin promenjeno. Na taj nacin originalni fajlovi ostaju nepromenjeni, a rezultat rada alata i izmenjeni fajlovi se nalaze u pomenutom direktorijumu. 
